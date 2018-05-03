@@ -1,0 +1,16 @@
+Package: SurrogateMinimalDepth
+Type: Package
+Title: Surrogate minimal depth variable importance 
+Version: 0.1.5
+Author: Stephan Seifert, Sven Gundlach, Silke Szymczak
+Maintainer: Stephan Seifert <seifert@medinfo.uni-kiel.de>
+Description: This package provides functions to obtain surrogate splits applying ranger for random forests generation and using modified functions from the package rpart. Surrogate variables and corresponding adjusted agreement values are used for surrogate minimal depth variable importance and to investigate variable relations.  
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+Imports:
+	ranger,
+	Rcpp,
+	randomForestSRC
+RoxygenNote: 6.0.1
+LinkingTo: Rcpp
