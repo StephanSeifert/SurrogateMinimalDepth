@@ -5,17 +5,18 @@
 #' @param x matrix or data.frame of predictor variables with variables in
 #'   columns and samples in rows (Note: missing values are not allowed)
 #' @param y vector with values of phenotype variable (Note: will be converted to factor if
-#'   classification mode is used).
+#'   classification mode is used). For survival forests this is the time variable.
 #' @param ntree Number of trees. Default is 500.
 #' @param mtry Number of variables to possibly split at in each node. Default is no. of variables^(3/4) as recommended by (Ishwaran 2011).
 #' @param type Mode of prediction ("regression" or "classification"). Default is regression.
 #' @param min.node.size Minimal node size. Default is 1.
 #' @param num.threads number of threads used for parallel execution. Default is number of CPUs available.
 #' @param s Predefined number of surrogate splits (it may happen that the actual number of surrogate splits differs in individual nodes). Default is 1 \% of no. of variables.
+#' @param status status variable, only applicable to survival data. Use 1 for event and 0 for censoring.
 #'
 #' @return List with the following components:
 #' \itemize{
-#' \item info: list with results from mindepsurr function:
+#' \item info: list with results from surrmindep function:
 #' \itemize{
 #' \item depth: mean surrogate minimal depth for each variable
 #' \item selected: variables has been selected (1) or not (0),
@@ -23,7 +24,13 @@
 #' }
 #' \item var: vector of selected variables
 #'
+#'\item s: List with the results of count.surrogate function:
+#'\itemize{
+#' \item s.a: total average number of surrogate variables
+#' \item s.l: average number of surrogate variables in the respective layers
+#'}
 #' \item trees: list of trees that was created by getTreeranger, addLayer, and addSurrogates functions and that was used for surrogate minimal depth variable importance
+#'
 #' }
 #' @examples
 #' # read data
@@ -41,7 +48,7 @@
 ##'   }
 #' @export
 
-var.select.smd = function(x,y,ntree = 500, type = "regression",s=NULL,mtry=NULL,min.node.size=1,num.threads=NULL) {
+var.select.smd = function(x,y,ntree = 500, type = "regression",s=NULL,mtry=NULL,min.node.size=1,num.threads=NULL,status=NULL) {
   ## check data
   if (length(y) != nrow(x)) {
     stop("length of y and number of rows in x are different")
@@ -73,8 +80,18 @@ var.select.smd = function(x,y,ntree = 500, type = "regression",s=NULL,mtry=NULL,
     stop("use factor variable for y only for classification! ")
   }
   data = data.frame(y, x)
+  if (type=="survival"){
+    if (is.null(status)){
+      stop("a status variables has to be given for survival analysis")
+    }
+    data$status=status
+    RF=ranger::ranger(data=data,dependent.variable.name="y",num.trees=ntree,mtry=mtry,min.node.size=min.node.size,keep.inbag = TRUE,
+                      num.threads=num.threads, dependent.variable.name="status")
+  }
+  if (type=="classification" | type=="regression"){
   RF=ranger::ranger(data=data,dependent.variable.name="y",num.trees=ntree,mtry=mtry,min.node.size=min.node.size,keep.inbag = TRUE,
                     num.threads=num.threads)
+  }
   trees=getTreeranger(RF=RF,ntree=ntree)
   trees.lay=addLayer(trees)
   ###AddSurrogates###
@@ -82,7 +99,7 @@ var.select.smd = function(x,y,ntree = 500, type = "regression",s=NULL,mtry=NULL,
   # count surrogates
   s=count.surrogates(trees.surr)
   surrminimaldepth.s=surrmindep(variables,trees.surr,s.l=s$s.l)
-  results=list(info=surrminimaldepth.s,var=names(surrminimaldepth.s$selected[surrminimaldepth.s$selected == 1]),trees=trees.surr)
+  results=list(info=surrminimaldepth.s,var=names(surrminimaldepth.s$selected[surrminimaldepth.s$selected == 1]),s=s,trees=trees.surr)
 
   return(results)
 }

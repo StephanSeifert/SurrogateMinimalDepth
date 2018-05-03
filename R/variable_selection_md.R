@@ -5,12 +5,13 @@
 #' @param x matrix or data.frame of predictor variables with variables in
 #'   columns and samples in rows (Note: missing values are not allowed)
 #' @param y vector with values of phenotype variable (Note: will be converted to factor if
-#'   classification mode is used).
+#'   classification mode is used). For survival forests this is the time variable.
 #' @param ntree Number of trees. Default is 500.
 #' @param mtry Number of variables to possibly split at in each node. Default is no. of variables^(3/4) as recommended by Ishwaran.
 #' @param type Mode of prediction ("regression" or "classification"). Default is regression.
 #' @param min.node.size Minimal node size. Default is 1.
 #' @param num.threads number of threads used for parallel execution. Default is number of CPUs available.
+#' @param status status variable, only applicable to survival data. Use 1 for event and 0 for censoring.
 #'
 #' @return List with the following components:
 #' \itemize{
@@ -42,7 +43,7 @@
 #'
 #' @export
 
-var.select.md = function(x,y,ntree = 500,type = "regression",mtry=NULL,min.node.size=1,num.threads=NULL) {
+var.select.md = function(x,y,ntree = 500,type = "regression",mtry=NULL,min.node.size=1,num.threads=NULL,status=NULL) {
 
   if (any(is.na(x))) {
     stop("missing values are not allowed")
@@ -64,9 +65,18 @@ var.select.md = function(x,y,ntree = 500,type = "regression",mtry=NULL,min.node.
   if (type == "regression" && class(y) == "factor"){
     stop("use factor variable for y only for classification! ")
   }
-  data = data.frame(y, x)
-  RF=ranger::ranger(data=data,dependent.variable.name="y",num.trees=ntree,mtry=mtry,min.node.size=1,
-                    keep.inbag = TRUE,num.threads=num.threads)
+  if (type=="survival"){
+    if (is.null(status)){
+      stop("a status variables has to be given for survival analysis")
+    }
+    data$status=status
+    RF=ranger::ranger(data=data,dependent.variable.name="y",num.trees=ntree,mtry=mtry,min.node.size=min.node.size,keep.inbag = TRUE,
+                      num.threads=num.threads, dependent.variable.name="status")
+  }
+  if (type=="classification" | type=="regression"){
+    RF=ranger::ranger(data=data,dependent.variable.name="y",num.trees=ntree,mtry=mtry,min.node.size=min.node.size,keep.inbag = TRUE,
+                      num.threads=num.threads)
+  }
   trees=getTreeranger(RF=RF,ntree=ntree)
   trees.lay=addLayer(trees)
   minimaldepth=mindep(variables,trees.lay)

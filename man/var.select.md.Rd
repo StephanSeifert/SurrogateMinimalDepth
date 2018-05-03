@@ -12,7 +12,7 @@ var.select.md(x, y, ntree = 500, type = "regression", mtry = NULL,
 columns and samples in rows (Note: missing values are not allowed)}
 
 \item{y}{vector with values of phenotype variable (Note: will be converted to factor if
-classification mode is used).}
+classification mode is used). For survival forests this is the time variable.}
 
 \item{ntree}{Number of trees. Default is 500.}
 
@@ -23,6 +23,8 @@ classification mode is used).}
 \item{min.node.size}{Minimal node size. Default is 1.}
 
 \item{num.threads}{number of threads used for parallel execution. Default is number of CPUs available.}
+
+\item{status}{status variable, only applicable to survival data. Use 1 for event and 0 for censoring.}
 }
 \value{
 List with the following components:

@@ -5,14 +5,14 @@
 \title{Variable selection with Surrogate Minimal Depth (SMD) (MAIN FUNCTION)}
 \usage{
 var.select.smd(x, y, ntree = 500, type = "regression", s = NULL,
-  mtry = NULL, min.node.size = 1, num.threads = NULL)
+  mtry = NULL, min.node.size = 1, num.threads = NULL, status = NULL)
 }
 \arguments{
 \item{x}{matrix or data.frame of predictor variables with variables in
 columns and samples in rows (Note: missing values are not allowed)}
 
 \item{y}{vector with values of phenotype variable (Note: will be converted to factor if
-classification mode is used).}
+classification mode is used). For survival forests this is the time variable.}
 
 \item{ntree}{Number of trees. Default is 500.}
 
@@ -25,11 +25,13 @@ classification mode is used).}
 \item{min.node.size}{Minimal node size. Default is 1.}
 
 \item{num.threads}{number of threads used for parallel execution. Default is number of CPUs available.}
+
+\item{status}{status variable, only applicable to survival data. Use 1 for event and 0 for censoring.}
 }
 \value{
 List with the following components:
 \itemize{
-\item info: list with results from mindepsurr function:
+\item info: list with results from surrmindep function:
 \itemize{
 \item depth: mean surrogate minimal depth for each variable
 \item selected: variables has been selected (1) or not (0),
@@ -37,7 +39,13 @@ List with the following components:
 }
 \item var: vector of selected variables
 
+\item s: List with the results of count.surrogate function:
+\itemize{
+\item s.a: total average number of surrogate variables
+\item s.l: average number of surrogate variables in the respective layers
+}
 \item trees: list of trees that was created by getTreeranger, addLayer, and addSurrogates functions and that was used for surrogate minimal depth variable importance
+
 }
 }
 \description{
