@@ -1,5 +1,5 @@
 Version 0.1.5 	- Added s as value in var.select.smd 
 		- Implemented survival function for var.select.smd and var.select.md
 
-Version 0.1.4 	- All errors and comments from coauthors implemented: first version uploaded on 		  github
+Version 0.1.4 	- All errors and comments from coauthors implemented: first version uploaded on github
 
