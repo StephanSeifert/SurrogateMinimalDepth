@@ -65,6 +65,7 @@ var.select.md = function(x,y,ntree = 500,type = "regression",mtry=NULL,min.node.
   if (type == "regression" && class(y) == "factor"){
     stop("use factor variable for y only for classification! ")
   }
+  data = data.frame(y, x)
   if (type=="survival"){
     if (is.null(status)){
       stop("a status variables has to be given for survival analysis")
