@@ -5,7 +5,8 @@
 \title{Variable selection with Minimal Depth (MD)}
 \usage{
 var.select.md(x, y, ntree = 500, type = "regression", mtry = NULL,
-  min.node.size = 1, num.threads = NULL)
+  min.node.size = 1, num.threads = NULL, status = NULL,
+  save.ranger = FALSE)
 }
 \arguments{
 \item{x}{matrix or data.frame of predictor variables with variables in
@@ -25,6 +26,8 @@ classification mode is used). For survival forests this is the time variable.}
 \item{num.threads}{number of threads used for parallel execution. Default is number of CPUs available.}
 
 \item{status}{status variable, only applicable to survival data. Use 1 for event and 0 for censoring.}
+
+\item{save.ranger}{Set TRUE if ranger object should be saved. Default is that ranger object is not saved (FALSE).}
 }
 \value{
 List with the following components:
@@ -38,6 +41,9 @@ List with the following components:
 \item var: vector of selected variables
 
 \item trees: list of trees that was created by getTreeranger, and addLayer functions and that was used for minimal depth variable importance
+
+\item ranger: ranger object
+
 }
 }
 \description{
