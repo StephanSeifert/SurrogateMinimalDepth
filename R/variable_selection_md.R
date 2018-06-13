@@ -12,6 +12,7 @@
 #' @param min.node.size Minimal node size. Default is 1.
 #' @param num.threads number of threads used for parallel execution. Default is number of CPUs available.
 #' @param status status variable, only applicable to survival data. Use 1 for event and 0 for censoring.
+#' @param save.ranger Set TRUE if ranger object should be saved. Default is that ranger object is not saved (FALSE).
 #'
 #' @return List with the following components:
 #' \itemize{
@@ -24,6 +25,9 @@
 #' \item var: vector of selected variables
 #'
 #' \item trees: list of trees that was created by getTreeranger, and addLayer functions and that was used for minimal depth variable importance
+#'
+#' \item ranger: ranger object
+#'
 #'}
 #' @examples
 #' # read data
@@ -43,7 +47,7 @@
 #'
 #' @export
 
-var.select.md = function(x,y,ntree = 500,type = "regression",mtry=NULL,min.node.size=1,num.threads=NULL,status=NULL) {
+var.select.md = function(x,y,ntree = 500,type = "regression",mtry=NULL,min.node.size=1,num.threads=NULL,status=NULL,save.ranger=FALSE) {
 
   if (any(is.na(x))) {
     stop("missing values are not allowed")
@@ -81,5 +85,11 @@ var.select.md = function(x,y,ntree = 500,type = "regression",mtry=NULL,min.node.
   trees=getTreeranger(RF=RF,ntree=ntree)
   trees.lay=addLayer(trees)
   minimaldepth=mindep(variables,trees.lay)
-  return(list(info=minimaldepth,var=names(minimaldepth$selected[minimaldepth$selected == 1]),trees=trees.lay))
+  if(save.ranger){
+    results=list(info=minimaldepth,var=names(minimaldepth$selected[minimaldepth$selected == 1]),trees=trees.lay,ranger=RF)
+  }
+  else {
+  results=list(info=minimaldepth,var=names(minimaldepth$selected[minimaldepth$selected == 1]),trees=trees.lay)
+  }
+  return(results)
 }

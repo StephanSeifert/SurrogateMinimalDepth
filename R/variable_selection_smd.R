@@ -10,9 +10,10 @@
 #' @param mtry Number of variables to possibly split at in each node. Default is no. of variables^(3/4) as recommended by (Ishwaran 2011).
 #' @param type Mode of prediction ("regression" or "classification"). Default is regression.
 #' @param min.node.size Minimal node size. Default is 1.
-#' @param num.threads number of threads used for parallel execution. Default is number of CPUs available.
+#' @param num.threads Number of threads used for parallel execution. Default is number of CPUs available.
 #' @param s Predefined number of surrogate splits (it may happen that the actual number of surrogate splits differs in individual nodes). Default is 1 \% of no. of variables.
-#' @param status status variable, only applicable to survival data. Use 1 for event and 0 for censoring.
+#' @param status Status variable, only applicable to survival data. Use 1 for event and 0 for censoring.
+#' @param save.ranger Set TRUE if ranger object should be saved. Default is that ranger object is not saved (FALSE).
 #'
 #' @return List with the following components:
 #' \itemize{
@@ -31,6 +32,8 @@
 #'}
 #' \item trees: list of trees that was created by getTreeranger, addLayer, and addSurrogates functions and that was used for surrogate minimal depth variable importance
 #'
+#'\item ranger: ranger object
+#'
 #' }
 #' @examples
 #' # read data
@@ -48,7 +51,7 @@
 ##'   }
 #' @export
 
-var.select.smd = function(x,y,ntree = 500, type = "regression",s=NULL,mtry=NULL,min.node.size=1,num.threads=NULL,status=NULL) {
+var.select.smd = function(x,y,ntree = 500, type = "regression",s=NULL,mtry=NULL,min.node.size=1,num.threads=NULL,status=NULL,save.ranger=FALSE) {
   ## check data
   if (length(y) != nrow(x)) {
     stop("length of y and number of rows in x are different")
@@ -99,7 +102,11 @@ var.select.smd = function(x,y,ntree = 500, type = "regression",s=NULL,mtry=NULL,
   # count surrogates
   s=count.surrogates(trees.surr)
   surrminimaldepth.s=surrmindep(variables,trees.surr,s.l=s$s.l)
-  results=list(info=surrminimaldepth.s,var=names(surrminimaldepth.s$selected[surrminimaldepth.s$selected == 1]),s=s,trees=trees.surr)
-
+  if(save.ranger){
+  results=list(info=surrminimaldepth.s,var=names(surrminimaldepth.s$selected[surrminimaldepth.s$selected == 1]),s=s,trees=trees.surr,ranger=RF)
+  }
+  else {
+    results=list(info=surrminimaldepth.s,var=names(surrminimaldepth.s$selected[surrminimaldepth.s$selected == 1]),s=s,trees=trees.surr)
+  }
   return(results)
 }
