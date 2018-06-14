@@ -5,7 +5,8 @@
 \title{Variable selection with Surrogate Minimal Depth (SMD) (MAIN FUNCTION)}
 \usage{
 var.select.smd(x, y, ntree = 500, type = "regression", s = NULL,
-  mtry = NULL, min.node.size = 1, num.threads = NULL, status = NULL)
+  mtry = NULL, min.node.size = 1, num.threads = NULL, status = NULL,
+  save.ranger = FALSE)
 }
 \arguments{
 \item{x}{matrix or data.frame of predictor variables with variables in
@@ -24,9 +25,11 @@ classification mode is used). For survival forests this is the time variable.}
 
 \item{min.node.size}{Minimal node size. Default is 1.}
 
-\item{num.threads}{number of threads used for parallel execution. Default is number of CPUs available.}
+\item{num.threads}{Number of threads used for parallel execution. Default is number of CPUs available.}
 
-\item{status}{status variable, only applicable to survival data. Use 1 for event and 0 for censoring.}
+\item{status}{Status variable, only applicable to survival data. Use 1 for event and 0 for censoring.}
+
+\item{save.ranger}{Set TRUE if ranger object should be saved. Default is that ranger object is not saved (FALSE).}
 }
 \value{
 List with the following components:
@@ -45,6 +48,8 @@ List with the following components:
 \item s.l: average number of surrogate variables in the respective layers
 }
 \item trees: list of trees that was created by getTreeranger, addLayer, and addSurrogates functions and that was used for surrogate minimal depth variable importance
+
+\item ranger: ranger object
 
 }
 }
