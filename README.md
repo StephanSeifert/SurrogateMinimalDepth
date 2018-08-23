@@ -24,6 +24,7 @@ res = var.select.md(x=SMD_example_data[,2:ncol(SMD_example_data)],y=SMD_example_
 res$var
  [1] "X2"     "X3"     "X4"     "X5"     "X6"     "cp2_7"  "cp3_4"  "cp3_6"  "cgn_68" "cgn_72"
 ```
+###Arguments
 x: Matrix or data.frame of predictor variables with variables in columns and samples in rows. 
 
 y: Vector with values of phenotype variable.
