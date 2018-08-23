@@ -37,11 +37,7 @@ The selected variables are stored in res$var. In this analysis the causal basic 
 
 ## Surrogate Minimal depth
 Now we want to analyze the example data with surrogate minimal depth. 
-First the package and the data are loaded:
-```
-library(SurrogateMinimalDepth)
-data("SMD_example_data")
-```
+
 Variable selection with var.select.smd is conducted:
 ```
 res = var.select.smd(x=SMD_example_data[,2:ncol(SMD_example_data)],y=SMD_example_data[,1],s=10,ntree=1000)
@@ -64,9 +60,6 @@ Now we want to analyze the relations between the variables in the example data. 
 One possibility to investigate variable relations is to used the results from var.select.smd. Hence, first SMD is conducted like in the previous section and the names of the variables are extracted from the result:
 
 ```
-library(SurrogateMinimalDepth)
-data("SMD_example_data")
-res = var.select.smd(x=SMD_example_data[,2:ncol(SMD_example_data)],y=SMD_example_data[,1],s=10,ntree=1000)
 allvariables=names(res$info$depth)
 ```
 Subsequently, variable relations are analyzed with var.relations:
