@@ -51,7 +51,7 @@ y: Vector with values of phenotype variable.
 
 ntree: Number of treesfor random forest.
 
-s: Predefined number of surrogate splits 
+s: Predefined number of surrogate splits. 
 
 The selected variables are stored in res$var. In this analysis the causal basic variables X1 to X6, as well as the variables cp1_1 to cp1_10, cp2_1, cp2_3, cp2_4, cp2_6, cp2_7, cp2_9, cp2_10, and cp3_4" that are correlated to causal variables are selected. This means the minimal depth values of these variables are below the threshold. 
 
