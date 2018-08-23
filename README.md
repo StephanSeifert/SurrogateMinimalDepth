@@ -13,9 +13,13 @@ The dataset contains 100 individuals (rows), 1 dependent variable (first column,
 # Usage
 ## Minimal depth
 
+First the package and the data are loaded:
 library(SurrogateMinimalDepth)
 data("SMD_example_data")
 
+
+res = var.select.md(x=SMD_example_data[,2:ncol(SMD_example_data)],y=SMD_example_data[,1],ntree=10)
+res$var
 
 
 
