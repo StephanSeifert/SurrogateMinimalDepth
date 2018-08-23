@@ -2,8 +2,10 @@
 In this R package functions are provided to select important variables with surrogate minimal depth (SMD) (main function: var.select.smd) and mimimal depth (MD) (main function: var.select.md) and to investigate variable relations  with the mean adjusted agreement of surrogate variables (main function: var.relations). 
 
 # Install
+```
 library(devtools)
 install_github("StephanSeifert/SurrogateMinimalDepth")
+```
 
 # Example data
 Example data to apply the functions in this package is provided: 
