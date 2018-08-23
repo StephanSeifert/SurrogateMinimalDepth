@@ -57,7 +57,7 @@ The selected variables are stored in res$var. In this analysis the causal basic 
 
 ## Variable relations (based on the mean adjusted agreement of surrogate variables)
 Now we want to analyze the relations of variables. We want to know which variables of the first 100 variables are related to X1 and X7. (Quick reminder: The data set contains 10 correlated variables for each of the two basic variables.) . 
-One possibility to investigate variable relations is to used the results from var.select.smd. Hence, first SMD is conducted like in the previous section and the names of the variables are extracted from the result:
+One possibility to investigate variable relations is to use the results from var.select.smd. Hence, first SMD is conducted like in the previous section and the names of the variables are extracted from the result:
 
 ```
 allvariables=names(res$info$depth)
