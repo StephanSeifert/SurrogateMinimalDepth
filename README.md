@@ -22,7 +22,7 @@ data("SMD_example_data")
 ```
 Variable selection with var.select.md is conducted:
 ```
-res = var.select.md(x=SMD_example_data[,2:ncol(SMD_example_data)],y=SMD_example_data[,1],ntree=1000)
+res = var.select.md(x = SMD_example_data[,2:ncol(SMD_example_data)], y = SMD_example_data[,1], ntree=1000)
 res$var
  [1] "X2"     "X3"     "X4"     "X5"     "X6"     "cp2_7"  "cp3_4"  "cp3_6"  "cgn_68" "cgn_72"
 ```
@@ -40,7 +40,7 @@ Now we want to analyze the example data with surrogate minimal depth.
 
 Variable selection with var.select.smd is conducted:
 ```
-res = var.select.smd(x=SMD_example_data[,2:ncol(SMD_example_data)],y=SMD_example_data[,1],s=10,ntree=1000)
+res = var.select.smd(x = SMD_example_data[,2:ncol(SMD_example_data)], y = SMD_example_data[,1], s = 10, ntree = 1000)
 res$var
  [1] "X1"     "X2"     "X3"     "X4"     "X5"     "X6"     "X8"     "cp1_1"  "cp1_2"  "cp1_3"  "cp1_4"  "cp1_5"  "cp1_6"  "cp1_7"  "cp1_8" 
 [16] "cp1_9"  "cp1_10" "cp2_1"  "cp2_3"  "cp2_4"  "cp2_6"  "cp2_7"  "cp2_9"  "cp2_10" "cp3_4" 
@@ -65,7 +65,7 @@ allvariables=names(res$info$depth)
 Subsequently, variable relations are analyzed with var.relations:
 
 ```
-rel=var.relations(trees=res$trees,variables=c("X1","X7"),allvariables=allvariables,candidates=allvariables[1:100],t=5)
+rel = var.relations(trees = res$trees, variables = c("X1","X7"), allvariables = allvariables, candidates = allvariables[1:100], t = 5)
 rel$var
 $X1
  [1] "cp1_1"  "cp1_2"  "cp1_3"  "cp1_4"  "cp1_5"  "cp1_6"  "cp1_7"  "cp1_8"  "cp1_9"  "cp1_10"
