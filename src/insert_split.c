@@ -1,79 +1,67 @@
-/*
- * This routine is from rpart
- *
- * sort a new split into a linked list, based on its "improvement"
- *
- *  allocates new memory as needed
- *   returns 0 if the new element isn't good enough,
- *   the address of the new element otherwise
- */
+
+// This routine is from rpart
+//
+// sort a new split into a linked list, based on its "improvement"
+//
+//  allocates new memory as needed
+//   returns 0 if the new element isn't good enough,
+//   the address of the new element otherwise
+
 #include "get_surg.h"
 #include "node.h"
 #include "rpartproto.h"
 
-pSplit insert_split(pSplit *listhead, int ncat, double improve, int max) {
+pSplit insert_split(pSplit *listhead, double improve, int max) {
 	int nlist;
 	pSplit s1, s2, s3 = NULL, s4;
 
-	/* csplit[0] gets used even for continuous splits. */
-	if (ncat == 0)
-		ncat = 1;
-	int splitsize = sizeof(Split) + (ncat - 20) * sizeof(int);
-
-	/* The Split structure is sized for 2 categpries. */
+	// The Split structure is sized for 2 categories.
 	if (*listhead == 0) {
-		/* first call to a new list */
-		s3 = (pSplit) CALLOC(1, splitsize);
+		// first call to a new list
+		// csplit gets used even for continuous splits.
+		s3 = (pSplit) calloc(1, sizeof(Split));
 		s3->nextsplit = NULL;
 		*listhead = s3;
 		return s3;
 	}
 	if (max < 2) {
-		/* user asked for only 1 to be retained! */
+		// user asked for only 1 to be retained!
 		s3 = *listhead;
 		if (improve <= s3->improve)
 			return NULL;
-		if (ncat > 1) {
-			Free(s3);
-			s3 = (pSplit) CALLOC(1, splitsize);
-			s3->nextsplit = NULL;
-			*listhead = s3;
-		}
 		return s3;
 	}
-	/* set up --- nlist = length of list, s4=last element, s3=next to last */
+	// set up --- nlist = length of list, s4=last element, s3=next to last
 	nlist = 1;
 	for (s4 = *listhead; s4->nextsplit; s4 = s4->nextsplit) {
 		s3 = s4;
 		nlist++;
 	}
 
-	/* now set up so that the "to be added" is between s1 and s2 */
+	// now set up so that the "to be added" is between s1 and s2
 	s1 = *listhead;
 	for (s2 = *listhead; s2; s2 = s2->nextsplit) {
 		if (improve > s2->improve)
 			break;
 		s1 = s2;
 	}
-
 	if (nlist == max) {
 		if (s2 == 0)
-			/* not good enough */
+			// not good enough
 			return NULL;
-		if (ncat > 1) {
-			/* FIXME: use Realloc */
-			/* get new memory -- this chunk may be too small */
-			Free(s4);
-			s4 = (pSplit) CALLOC(1, splitsize);
-		}
-		if (s1 == s3)
+
+		// redefine element s4 as new element
+		if (s1 == s3) {
 			s4->nextsplit = NULL;
+		}
 		else {
 			s3->nextsplit = NULL;
 			s4->nextsplit = s2;
 		}
 	} else {
-		s4 = (pSplit) CALLOC(1, splitsize);
+		// reuse pointer s4 for new element
+		// csplit gets used even for continuous splits.
+		s4 = (pSplit) calloc(1, sizeof(Split));
 		s4->nextsplit = s2;
 	}
 	if (s2 == *listhead)
