@@ -1,18 +1,19 @@
-/* This routine export the c function for R */
+// This routine export the c function for R
 #include "get_surg.h"
 #include "R_ext/Rdynload.h"
 #include "node.h"
 #include "rpartproto.h"
 
-SEXP getSurrogates(SEXP ncat, SEXP wt, SEXP xmat, SEXP opt, SEXP node);
+SEXP getSurrogates(SEXP wt, SEXP xmat, SEXP opt, SEXP node);
 
 static const R_CallMethodDef CallEntries[] = {
-/* registering native routines http://www.hep.by/gnu/r-patched/r-exts/R-exts_95.html */
-{ "getSurrogates", (DL_FUNC) & getSurrogates, 5 }, { NULL, NULL, 0 } };
+	// registering native routines http://www.hep.by/gnu/r-patched/r-exts/R-exts_95.html
+	{ "getSurrogates", (DL_FUNC) & getSurrogates, 4 }, { NULL, NULL, 0 }
+};
 
 #include <Rversion.h>
 void
-/* registering native routines http://www.hep.by/gnu/r-patched/r-exts/R-exts_95.html */
+// registering native routines http://www.hep.by/gnu/r-patched/r-exts/R-exts_95.html
 R_init_SurrogateMinimalDepth(DllInfo * dll) {
 	R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
 	R_useDynamicSymbols(dll, FALSE);

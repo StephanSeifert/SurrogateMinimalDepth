@@ -4,7 +4,7 @@
 \alias{addSurrogates}
 \title{Add surrogate information that was created by getTreeranger}
 \usage{
-addSurrogates(RF, trees, s, Xdata)
+addSurrogates(RF, trees, s, Xdata, num.threads)
 }
 \arguments{
 \item{RF}{random forest object created by ranger (with keep.inbag=TRUE).}
@@ -14,6 +14,8 @@ addSurrogates(RF, trees, s, Xdata)
 \item{s}{Predefined number of surrogate splits (it may happen that the actual number of surrogate splits differes in individual nodes). Default is 1 \% of no. of variables.}
 
 \item{Xdata}{data without the dependent variable.}
+
+\item{num.threads}{number of threads used for parallel execution. Default is number of CPUs available.}
 }
 \value{
 a list with trees containing of lists of nodes with the elements:

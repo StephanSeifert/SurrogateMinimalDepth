@@ -4,7 +4,7 @@
 \alias{SurrTree}
 \title{SurrTree}
 \usage{
-SurrTree(j, ncat, wt, Xdata, controls, column.names, tree, maxsurr)
+SurrTree(j, wt, Xdata, controls, column.names, tree, maxsurr)
 }
 \description{
 This is an internal function

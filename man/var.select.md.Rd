@@ -4,13 +4,13 @@
 \alias{var.select.md}
 \title{Variable selection with Minimal Depth (MD)}
 \usage{
-var.select.md(x, y, ntree = 500, type = "regression", mtry = NULL,
-  min.node.size = 1, num.threads = NULL, status = NULL,
-  save.ranger = FALSE)
+var.select.md(x = NULL, y = NULL, ntree = 500, type = "regression",
+  mtry = NULL, min.node.size = 1, num.threads = NULL, status = NULL,
+  save.ranger = FALSE, create.forest = TRUE, forest = NULL)
 }
 \arguments{
 \item{x}{matrix or data.frame of predictor variables with variables in
-columns and samples in rows (Note: missing values are not allowed)}
+columns and samples in rows. (Note: missing values are not allowed)}
 
 \item{y}{vector with values of phenotype variable (Note: will be converted to factor if
 classification mode is used). For survival forests this is the time variable.}
@@ -28,19 +28,27 @@ classification mode is used). For survival forests this is the time variable.}
 \item{status}{status variable, only applicable to survival data. Use 1 for event and 0 for censoring.}
 
 \item{save.ranger}{Set TRUE if ranger object should be saved. Default is that ranger object is not saved (FALSE).}
+
+\item{create.forest}{set FALSE if you want to analyze an existing forest. Default is TRUE.}
+
+\item{forest}{the random forest that should be analyzed if create.forest is set to FALSE. (x and y still have to be given to obtain variable names)}
 }
 \value{
 List with the following components:
 \itemize{
 \item info: list with results from mindep function:
 \itemize{
-\item depth: mean minimal depth for each variable
-\item selected: variables has been selected (1) or not (0),
-\item threshold: the threshold that is used for the selection
+\item depth: mean minimal depth for each variable.
+\item selected: variables has been selected (1) or not (0).
+\item threshold: the threshold that is used for the selection. (deviates slightly from the original implimentation)
 }
-\item var: vector of selected variables
+\item var: vector of selected variables.
 
-\item trees: list of trees that was created by getTreeranger, and addLayer functions and that was used for minimal depth variable importance
+\item forest: a list containing:
+#'\itemize{
+\item trees: list of trees that was created by getTreeranger, addLayer, and addSurrogates functions and that was used for surrogate minimal depth variable importance.
+\item allvariables: all variable names of the predictor variables that are present in x.
+}
 
 \item ranger: ranger object
 
@@ -55,7 +63,8 @@ data("SMD_example_data")
 
 \donttest{
 # select variables (usually more trees are needed)
-res = var.select.md(x=SMD_example_data[,2:ncol(SMD_example_data)],y=SMD_example_data[,1],ntree=10)
+set.seed(42)
+res = var.select.md(x = SMD_example_data[,2:ncol(SMD_example_data)], y = SMD_example_data[,1], ntree = 10)
 res$var
 }
 

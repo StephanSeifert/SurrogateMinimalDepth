@@ -1,163 +1,178 @@
-/*
- * This routine is orignaly from rpart.
- *
- * The main entry point for R to find surrogate variables for a node.
- *
- * Input variables:
- *      ncat    = # categories for each var, 0 for continuous variables.
- *      wt      = vector of case weights
- *      xmat    = matrix of continuous variables
- *      opt     = vector of options.  Same order as get_surg.control, as a vector
- *                of doubles.
- *      node    = primary node
- *
- * Returned: a list with elements
- *      dsplit = for each split, numeric variables (doubles)
- *      isplit = for each split, integer variables
- *      isplitcount =  for each node, integer variables
- *
- * Naming convention: ncat = pointer to an integer vector, ncatR = the
- * input R object (SEXP) containing that vector
- */
+// This routine is originally from rpart.
+//
+// The main entry point for R to find surrogate variables for a node.
+//
+// Input variables:
+//      wt      = vector of case weights
+//      xmat    = matrix of continuous variables
+//      opt     = vector of options.  Same order as get_surg.control, as a vector
+//                of doubles.
+//      node    = primary node
+//
+// Returned: a list with elements
+//      dsplit = for each split, numeric variables (doubles)
+//      isplit = for each split, integer variables
+//      isplitcntSum =  for each node, integer variables
+//
+// Naming convention: ... = pointer to an integer vector, ...R = the
+// input R object (SEXP) containing that vector
+
 #define MAINRP
 #include <math.h>
 #include "get_surg.h"
 #include "node.h"
 #include "rpartproto.h"
 
-SEXP getSurrogates(SEXP ncatR, SEXP wt, SEXP xmat, SEXP opt, SEXP node) {
-	int *ncat;
+#ifdef DEBUG
+#include <unistd.h>	//for using the function sleep
+#endif
+
+SEXP getSurrogates(SEXP wt, SEXP xmat, SEXP opt, SEXP node) {
+#ifdef DEBUG
+	Rprintf("debug\n");
+#endif
 	double *dptr;
 	int *iptr;
 	int i, j, k, n;
-	int maxcat;
 	pNode tree;
 
-	/* return objects for R 
-	 * end in "3" to avoid overlap with internal names 
-	 */
+	// return objects for R
+	// end in "3" to avoid overlap with internal names
+
 	SEXP dsplit3, isplit3;
 
-	/* output variables */
-	int splitcount;
+	// output variables
+	int nsplit[2];
 	double *ddsplit[3];
 	int *iisplit[3];
 
-	/* hand over arguments */
-	splitcount = 0;
-
-	ncat = INTEGER(ncatR);
-	rp.numcat = ncat;
-
+	// hand over arguments
 	rp.n = nrows(xmat);
 	n = rp.n;
 	rp.nvar = ncols(xmat);
 
 	rp.wt = REAL(wt);
 
-	/*
-	 * create pointers to the matrix
-	 * x and missmat are in column major order
-	 * y is in row major order
-	 */
-	dptr = REAL(xmat);
-	rp.xdata = (double **) ALLOC(rp.nvar, sizeof(double *));
-	for (i = 0; i < rp.nvar; i++) {
-		rp.xdata[i] = dptr;
-		dptr += n;
-	}
-
 	iptr = INTEGER(opt);
-	rp.maxsur = (int) iptr[4];
+	rp.maxsur = (int) iptr[0];
+	rp.sur_agree = (int) iptr[1];
 
-	/*
-	 * create matrix of sort indices, for surrogate
-	 * one for each continuous variable
-	 * This sort is "once and for all".
-	 * I don't have to sort the categoricals.
-	 */
-	rp.tempvec = (int *) ALLOC(n, sizeof(int));
-	rp.xtemp = (double *) ALLOC(n, sizeof(double));
-	rp.sorts = (int **) ALLOC(rp.nvar, sizeof(int *));
-	rp.sorts[0] = (int *) ALLOC(n * rp.nvar, sizeof(int));
-	maxcat = 0;
+#ifdef  OPENMP_ON
+	rp.nthreads = (int) iptr[2];
+	if (rp.nthreads < 1 || omp_get_num_procs() < rp.nthreads)
+		rp.nthreads = omp_get_num_procs();
+#endif
+	// create pointers to the matrix
+	// x and missmat are in column major order
+	// y is in row major order
+	dptr = REAL(xmat);
+	rp.xdata = (double **) calloc(rp.nvar, sizeof(double *));
+#ifdef OPENMP_ON
+	#pragma omp parallel for private(i) schedule(dynamic) num_threads(rp.nthreads)
+	// start parallel section
+#endif
 	for (i = 0; i < rp.nvar; i++) {
-		rp.sorts[i] = rp.sorts[0] + i * n;
-		for (k = 0; k < n; k++) {
-			if (!R_FINITE(rp.xdata[i][k])) {
-				/* this variable is missing (NA)*/
-				rp.tempvec[k] = -(k + 1);
-				rp.xtemp[k] = 0;
-			} else {
-				rp.tempvec[k] = k;
-				rp.xtemp[k] = rp.xdata[i][k];
-			}
-		}
-		if (ncat[i] == 0)
-			sort_vec(0, n - 1, rp.xtemp, rp.tempvec);
-		else
-			if (ncat[i] > maxcat)
-				maxcat = ncat[i];
-		for (k = 0; k < n; k++)
-			rp.sorts[i][k] = rp.tempvec[k];
+		//combined for parallel execution
+		rp.xdata[i] = dptr + i * n;
 	}
+	// end parallel section
 
-	/* finalize rp object */
-	if (maxcat > 0) {
-		rp.csplit = (int *) ALLOC(3 * maxcat, sizeof(int));
-		rp.lwt = (double *) ALLOC(2 * maxcat, sizeof(double));
-		rp.left = rp.csplit + maxcat;
-		rp.right = rp.left + maxcat;
-		rp.rwt = rp.lwt + maxcat;
-	} else
-		rp.csplit = (int *) ALLOC(1, sizeof(int));
+	// create matrix of sort indices, for surrogate
+	// one for each continuous variable
+	// This sort is "once and for all".
+	// I don't have to sort the categories.
 
-	/* finalize tree object */
+	rp.sorts = (int **) calloc(rp.nvar, sizeof(int *));
+	rp.sorts[0] = (int *) calloc(n * rp.nvar, sizeof(int));
+
+#ifdef OPENMP_ON
+	#pragma omp parallel private(i,k) num_threads(rp.nthreads)
+	{
+// start parallel section
+#endif
+		int *tempvec = (int *) calloc(n, sizeof(int));
+		double *xtemp = (double *) calloc(n, sizeof(double));
+#ifdef OPENMP_ON
+		#pragma omp for schedule(dynamic)
+#endif
+		for (i = 0; i < rp.nvar; i++) {
+			rp.sorts[i] = rp.sorts[0] + i * n;
+			for (k = 0; k < n; k++) {
+				if (!R_FINITE(rp.xdata[i][k])) {
+					// this variable is missing (NA)
+					tempvec[k] = -(k + 1);
+					xtemp[k] = 0;
+				} else {
+					tempvec[k] = k;
+					xtemp[k] = rp.xdata[i][k];
+				}
+			}
+			sort_vec(0, n - 1, xtemp, tempvec);
+			for (k = 0; k < n; k++)
+				rp.sorts[i][k] = tempvec[k];
+		}
+		//clear DMA
+		free(tempvec);
+		free(xtemp);
+#ifdef OPENMP_ON
+	}
+// end parallel section
+#endif
+	// finalize tree object
 	nodesize = sizeof(Node);
-	tree = (pNode) ALLOC(1, nodesize);
-	memset(tree, 0, nodesize);
+	tree = (pNode) calloc(1, nodesize);
 
 	dptr = REAL(node);
-	/* the split structure is sized for 2 categories. */
+	// the split structure is sized for 2 categories.
 	int splitsize = sizeof(Split);
-	tree->primary = (pSplit) CALLOC(1, splitsize);
-	memset(tree->primary, 0, splitsize);
-	tree->primary->csplit[0] = 1;
+	tree->primary = (pSplit) calloc(1, splitsize);
+	tree->primary->csplit = 1;
 	tree->primary->nextsplit = NULL;
 
 	tree->primary->var_num = (int) dptr[0] - 1;
 	tree->primary->spoint = dptr[1];
 
-	if (rp.maxsur > 0)
+	if (0 < rp.maxsur)
 		surrogate(tree, 0, n);
 
-	/*
-	 * Return the body of the tree
-	 * For each component we first create a vector to hold the
-	 * result, then a ragged array index into the vector.
-	 * The rpmatrix routine then fills everything in.
-	 */
-	rpcountup(tree, &splitcount);
 
-	dsplit3 = PROTECT(allocMatrix(REALSXP, splitcount, 3));
+	// Return the body of the tree
+	// For each component we first create a vector to hold the
+	// result, then a ragged array index into the vector.
+	// The rpmatrix routine then fills everything in.
+
+	rpcountup(tree, nsplit);
+	int splitcnt = nsplit[0] + nsplit[1];
+
+	dsplit3 = PROTECT(allocMatrix(REALSXP, splitcnt, 3));
 	dptr = REAL(dsplit3);
+#ifdef OPENMP_ON
+	#pragma omp parallel for private(i,j) schedule(dynamic) collapse(2) num_threads(rp.nthreads)
+	// start parallel section
+#endif
 	for (i = 0; i < 3; i++) {
-		ddsplit[i] = dptr;
-		dptr += splitcount;
-		for (j = 0; j < splitcount; j++)
+		for (j = 0; j < splitcnt; j++) {
+			//moved for perfectly nested loop | combined for parallel execution
+			ddsplit[i] = dptr + i * splitcnt;
 			ddsplit[i][j] = 0.0;
+		}
 	}
+	// end parallel section
 
-	isplit3 = PROTECT(allocMatrix(INTSXP, splitcount, 3));
+	isplit3 = PROTECT(allocMatrix(INTSXP, splitcnt, 3));
 	iptr = INTEGER(isplit3);
+// #ifdef OPENMP_ON
+// 	#pragma omp parallel for private(i) schedule(dynamic) num_threads(4)
+// 	// removed too short parallel section
+// #endif
 	for (i = 0; i < 3; i++) {
-		iisplit[i] = iptr;
-		iptr += splitcount;
+		//combined for parallel execution
+		iisplit[i] = iptr + i * splitcnt;
 	}
 
-	rpmatrix(tree, rp.numcat, ddsplit, iisplit, NULL, 1);
+	rpmatrix(tree, ddsplit, iisplit, nsplit);
 
-	/* Create the output list */
+	// Create the output list
 	int nout = 2;
 	SEXP rlist = PROTECT(allocVector(VECSXP, nout));
 	SEXP rname = allocVector(STRSXP, nout);
@@ -169,8 +184,14 @@ SEXP getSurrogates(SEXP ncatR, SEXP wt, SEXP xmat, SEXP opt, SEXP node) {
 
 	UNPROTECT(1 + nout);
 
-	/* let the memory go */
+	// let the memory go
 	free_tree(tree, 0);
+
+	// clear DMA
+	free(rp.xdata);
+	free(rp.sorts[0]);
+	free(rp.sorts);
+	free(tree);
 
 	return rlist;
 }
