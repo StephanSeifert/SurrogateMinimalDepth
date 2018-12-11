@@ -16,7 +16,8 @@
 #' @param save.ranger set TRUE if ranger object should be saved. Default is that ranger object is not saved (FALSE).
 #' @param create.forest set FALSE if you want to analyze an existing forest. Default is TRUE.
 #' @param forest the random forest that should be analyzed if create.forest is set to FALSE. (x and y still have to be given to obtain variable names)
-#'
+#' @param save.memory Use memory saving (but slower) splitting mode. No effect for survival and GWAS data. Warning: This option slows down the tree growing, use only if you encounter memory problems. (This parameter is transfered to ranger)
+
 #' @return list with the following components:
 #' \itemize{
 #' \item info: list with results from surrmindep function:
@@ -58,7 +59,8 @@
 #' @export
 
 var.select.smd = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
-                          num.threads = NULL, status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL) {
+                          num.threads = NULL, status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL,
+                          save.memory = FALSE) {
   if (create.forest) {
   ## check data
   if (length(y) != nrow(x)) {
@@ -77,8 +79,15 @@ var.select.smd = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
     mtry = floor(nvar^(3/4))
   }
 
+
+
   if (is.null(s)) {
-    s = nvar*0.01
+    s = ceiling(nvar*0.01)
+  }
+
+  if (s > (nvar - 2)) {
+    s = nvar - 1
+    warning("s was set to the maximum number that is reasonable (variables-1) ")
   }
 
   if (type == "classification") {
@@ -97,7 +106,7 @@ var.select.smd = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
     }
     data$status = status
     RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
-                        keep.inbag = TRUE, num.threads = num.threads, dependent.variable.name = "status")
+                        keep.inbag = TRUE, num.threads = num.threads, dependent.variable.name = "status", save.memory = save.memory)
   }
   if (type == "classification" | type == "regression") {
   RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
