@@ -4,9 +4,12 @@
 \alias{var.select.smd}
 \title{Variable selection with Surrogate Minimal Depth (SMD) (MAIN FUNCTION)}
 \usage{
-var.select.smd(x, y, ntree = 500, type = "regression", s = NULL,
-  mtry = NULL, min.node.size = 1, num.threads = NULL, status = NULL,
-  save.ranger = FALSE)
+
+var.select.smd(x = NULL, y = NULL, ntree = 500, type = "regression",
+  s = NULL, mtry = NULL, min.node.size = 1, num.threads = NULL,
+  status = NULL, save.ranger = FALSE, create.forest = TRUE,
+  forest = NULL)
+
 }
 \arguments{
 \item{x}{matrix or data.frame of predictor variables with variables in
@@ -15,39 +18,49 @@ columns and samples in rows (Note: missing values are not allowed)}
 \item{y}{vector with values of phenotype variable (Note: will be converted to factor if
 classification mode is used). For survival forests this is the time variable.}
 
-\item{ntree}{Number of trees. Default is 500.}
+\item{ntree}{number of trees. Default is 500.}
 
-\item{type}{Mode of prediction ("regression" or "classification"). Default is regression.}
+\item{type}{mode of prediction ("regression" or "classification"). Default is regression.}
 
-\item{s}{Predefined number of surrogate splits (it may happen that the actual number of surrogate splits differs in individual nodes). Default is 1 \% of no. of variables.}
+\item{s}{predefined number of surrogate splits (it may happen that the actual number of surrogate splits differs in individual nodes). Default is 1 \% of no. of variables.}
 
-\item{mtry}{Number of variables to possibly split at in each node. Default is no. of variables^(3/4) as recommended by (Ishwaran 2011).}
+\item{mtry}{number of variables to possibly split at in each node. Default is no. of variables^(3/4) as recommended by (Ishwaran 2011).}
 
-\item{min.node.size}{Minimal node size. Default is 1.}
+\item{min.node.size}{minimal node size. Default is 1.}
 
 \item{num.threads}{Number of threads used for parallel execution. Default is number of CPUs available.}
 
-\item{status}{Status variable, only applicable to survival data. Use 1 for event and 0 for censoring.}
+\item{status}{status variable, only applicable to survival data. Use 1 for event and 0 for censoring.}
 
-\item{save.ranger}{Set TRUE if ranger object should be saved. Default is that ranger object is not saved (FALSE).}
+\item{save.ranger}{set TRUE if ranger object should be saved. Default is that ranger object is not saved (FALSE).}
+
+\item{create.forest}{set FALSE if you want to analyze an existing forest. Default is TRUE.}
+
+\item{forest}{the random forest that should be analyzed if create.forest is set to FALSE. (x and y still have to be given to obtain variable names)}
+
 }
 \value{
-List with the following components:
+list with the following components:
 \itemize{
 \item info: list with results from surrmindep function:
 \itemize{
-\item depth: mean surrogate minimal depth for each variable
-\item selected: variables has been selected (1) or not (0),
-\item threshold: the threshold that is used for the selection
+\item depth: mean surrogate minimal depth for each variable.
+\item selected: variables has been selected (1) or not (0).
+\item threshold: the threshold that is used for the selection.
 }
-\item var: vector of selected variables
+\item var: vector of selected variables.
 
-\item s: List with the results of count.surrogate function:
+\item s: list with the results of count.surrogate function:
 \itemize{
-\item s.a: total average number of surrogate variables
-\item s.l: average number of surrogate variables in the respective layers
+\item s.a: total average number of surrogate variables.
+\item s.l: average number of surrogate variables in the respective layers.
 }
-\item trees: list of trees that was created by getTreeranger, addLayer, and addSurrogates functions and that was used for surrogate minimal depth variable importance
+\item forest: a list containing:
+#'\itemize{
+\item trees: list of trees that was created by getTreeranger, addLayer, and addSurrogates functions and that was used for surrogate minimal depth variable importance.
+\item allvariables: all variable names of the predictor variables that are present in x.
+}
+\item ranger: ranger object.
 
 \item ranger: ranger object
 
@@ -62,7 +75,8 @@ data("SMD_example_data")
 
 \donttest{
 # select variables (usually more trees are needed)
-res = var.select.smd(x=SMD_example_data[,2:ncol(SMD_example_data)],y=SMD_example_data[,1],s=10,ntree=10)
+set.seed(42)
+res = var.select.smd(x = SMD_example_data[,2:ncol(SMD_example_data)], y = SMD_example_data[,1],s = 10, ntree = 10)
 res$var
 }
 }

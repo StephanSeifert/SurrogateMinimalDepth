@@ -1,9 +1,8 @@
-/*
- * This routine is orignaly from rpart.
- *
- * count up the number of nodes and splits in the final result
- *
- */
+// This routine is originally from rpart.
+//
+// count up the number of nodes and splits in the final result
+//
+
 #include "get_surg.h"
 #include "node.h"
 #include "rpartproto.h"
@@ -14,12 +13,25 @@ void rpcountup(pNode me, int *nsplit) {
 
 	i = 0;
 	j = 0;
-	for (ss = me->primary; ss; ss = ss->nextsplit) {
-		i++;
+#ifdef OPENMP_ON
+	#pragma omp sections private (ss)
+// start parallel section
+	{
+		#pragma omp section
+#endif
+		for (ss = me->primary; ss; ss = ss->nextsplit) {
+			i++;
+		}
+#ifdef OPENMP_ON
+		#pragma omp section
+#endif
+		for (ss = me->surrogate; ss; ss = ss->nextsplit) {
+			j++;
+		}
+#ifdef OPENMP_ON
 	}
-	for (ss = me->surrogate; ss; ss = ss->nextsplit) {
-		j++;
-	}
-
-	*nsplit += i + j;
+// end parallel section
+#endif
+	nsplit[0] = i;
+	nsplit[1] = j;
 }
