@@ -4,9 +4,12 @@
 \alias{var.select.md}
 \title{Variable selection with Minimal Depth (MD)}
 \usage{
+
 var.select.md(x = NULL, y = NULL, ntree = 500, type = "regression",
   mtry = NULL, min.node.size = 1, num.threads = NULL, status = NULL,
   save.ranger = FALSE, create.forest = TRUE, forest = NULL)
+
+
 }
 \arguments{
 \item{x}{matrix or data.frame of predictor variables with variables in
@@ -32,6 +35,7 @@ classification mode is used). For survival forests this is the time variable.}
 \item{create.forest}{set FALSE if you want to analyze an existing forest. Default is TRUE.}
 
 \item{forest}{the random forest that should be analyzed if create.forest is set to FALSE. (x and y still have to be given to obtain variable names)}
+
 }
 \value{
 List with the following components:

@@ -4,10 +4,12 @@
 \alias{var.select.smd}
 \title{Variable selection with Surrogate Minimal Depth (SMD) (MAIN FUNCTION)}
 \usage{
+
 var.select.smd(x = NULL, y = NULL, ntree = 500, type = "regression",
   s = NULL, mtry = NULL, min.node.size = 1, num.threads = NULL,
   status = NULL, save.ranger = FALSE, create.forest = TRUE,
   forest = NULL)
+
 }
 \arguments{
 \item{x}{matrix or data.frame of predictor variables with variables in
@@ -26,7 +28,7 @@ classification mode is used). For survival forests this is the time variable.}
 
 \item{min.node.size}{minimal node size. Default is 1.}
 
-\item{num.threads}{number of threads used for parallel execution. Default is number of CPUs available.}
+\item{num.threads}{Number of threads used for parallel execution. Default is number of CPUs available.}
 
 \item{status}{status variable, only applicable to survival data. Use 1 for event and 0 for censoring.}
 
@@ -35,6 +37,7 @@ classification mode is used). For survival forests this is the time variable.}
 \item{create.forest}{set FALSE if you want to analyze an existing forest. Default is TRUE.}
 
 \item{forest}{the random forest that should be analyzed if create.forest is set to FALSE. (x and y still have to be given to obtain variable names)}
+
 }
 \value{
 list with the following components:
@@ -58,6 +61,8 @@ list with the following components:
 \item allvariables: all variable names of the predictor variables that are present in x.
 }
 \item ranger: ranger object.
+
+\item ranger: ranger object
 
 }
 }
