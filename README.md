@@ -2,7 +2,7 @@
 In this R package functions are provided to select important variables with surrogate minimal depth (SMD) and minimal depth (MD) and to investigate variable relations with the mean adjusted agreement of surrogate variables. 
 
 Please cite the following manuscript if you use the package:
-Stephan Seifert, Sven Gundlach and Silke Szymczak (2018): Surrogate minimal depth as an importance measure for variables in random forests. In revision at Bioinformatics.
+S. Seifert, S. Gundlach, S. Szymczak, Surrogate minimal depth as an importance measure for variables in random forests, Bioinformatics 2019, 35, 3663-3671.
 
 
 # Install
