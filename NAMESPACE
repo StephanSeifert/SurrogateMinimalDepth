@@ -2,6 +2,7 @@
 
 export(addLayer)
 export(addSurrogates)
+export(build.clusters)
 export(count.surrogates)
 export(getTreeranger)
 export(meanAdjAgree)
