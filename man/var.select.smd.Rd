@@ -69,11 +69,13 @@ This function executes SMD applying \link[ranger]{ranger} for random forests gen
 \examples{
 # read data
 data("SMD_example_data")
+x = SMD_example_data[,2:ncol(SMD_example_data)]
+y = SMD_example_data[,1]
 
 \donttest{
 # select variables (usually more trees are needed)
 set.seed(42)
-res = var.select.smd(x = SMD_example_data[,2:ncol(SMD_example_data)], y = SMD_example_data[,1],s = 10, ntree = 10)
+res = var.select.smd(x = x, y = y,s = 10, ntree = 10)
 res$var
 }
 }

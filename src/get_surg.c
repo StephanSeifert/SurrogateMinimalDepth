@@ -57,15 +57,24 @@ SEXP getSurrogates(SEXP wt, SEXP xmat, SEXP opt, SEXP node) {
 	rp.maxsur = (int) iptr[0];
 	rp.sur_agree = (int) iptr[1];
 
+	rp.all = (int) iptr[2] == 1;
+
+#ifdef DEBUG
+	Rprintf("rng test value %f\n", norm_rand());
+#endif
+
 #ifdef  OPENMP_ON
-	rp.nthreads = (int) iptr[2];
+	rp.nthreads = (int) iptr[3];
 	if (rp.nthreads < 1 || omp_get_num_procs() < rp.nthreads)
 		rp.nthreads = omp_get_num_procs();
 #endif
+
+
 	// create pointers to the matrix
 	// x and missmat are in column major order
 	// y is in row major order
 	dptr = REAL(xmat);
+	// DMA
 	rp.xdata = (double **) calloc(rp.nvar, sizeof(double *));
 #ifdef OPENMP_ON
 	#pragma omp parallel for private(i) schedule(dynamic) num_threads(rp.nthreads)
@@ -82,7 +91,9 @@ SEXP getSurrogates(SEXP wt, SEXP xmat, SEXP opt, SEXP node) {
 	// This sort is "once and for all".
 	// I don't have to sort the categories.
 
+	// DMA
 	rp.sorts = (int **) calloc(rp.nvar, sizeof(int *));
+	// DMA
 	rp.sorts[0] = (int *) calloc(n * rp.nvar, sizeof(int));
 
 #ifdef OPENMP_ON
@@ -90,7 +101,9 @@ SEXP getSurrogates(SEXP wt, SEXP xmat, SEXP opt, SEXP node) {
 	{
 // start parallel section
 #endif
+		// DMA
 		int *tempvec = (int *) calloc(n, sizeof(int));
+		// DMA
 		double *xtemp = (double *) calloc(n, sizeof(double));
 #ifdef OPENMP_ON
 		#pragma omp for schedule(dynamic)
@@ -111,7 +124,7 @@ SEXP getSurrogates(SEXP wt, SEXP xmat, SEXP opt, SEXP node) {
 			for (k = 0; k < n; k++)
 				rp.sorts[i][k] = tempvec[k];
 		}
-		//clear DMA
+		// clear DMA
 		free(tempvec);
 		free(xtemp);
 #ifdef OPENMP_ON
@@ -120,11 +133,13 @@ SEXP getSurrogates(SEXP wt, SEXP xmat, SEXP opt, SEXP node) {
 #endif
 	// finalize tree object
 	nodesize = sizeof(Node);
+	// DMA
 	tree = (pNode) calloc(1, nodesize);
 
 	dptr = REAL(node);
 	// the split structure is sized for 2 categories.
 	int splitsize = sizeof(Split);
+	// DMA
 	tree->primary = (pSplit) calloc(1, splitsize);
 	tree->primary->csplit = 1;
 	tree->primary->nextsplit = NULL;
@@ -132,7 +147,7 @@ SEXP getSurrogates(SEXP wt, SEXP xmat, SEXP opt, SEXP node) {
 	tree->primary->var_num = (int) dptr[0] - 1;
 	tree->primary->spoint = dptr[1];
 
-	if (0 < rp.maxsur)
+	if (0 < rp.maxsur || rp.all == 1)
 		surrogate(tree, 0, n);
 
 
@@ -146,10 +161,12 @@ SEXP getSurrogates(SEXP wt, SEXP xmat, SEXP opt, SEXP node) {
 
 	dsplit3 = PROTECT(allocMatrix(REALSXP, splitcnt, 3));
 	dptr = REAL(dsplit3);
-#ifdef OPENMP_ON
-	#pragma omp parallel for private(i,j) schedule(dynamic) collapse(2) num_threads(rp.nthreads)
-	// start parallel section
-#endif
+
+//removed parallel section to reduce implications with R Protect
+//#ifdef OPENMP_ON
+//	#pragma omp parallel for private(i,j) schedule(dynamic) collapse(2) num_threads(rp.nthreads)
+//	// start parallel section
+//#endif
 	for (i = 0; i < 3; i++) {
 		for (j = 0; j < splitcnt; j++) {
 			//moved for perfectly nested loop | combined for parallel execution
@@ -157,7 +174,6 @@ SEXP getSurrogates(SEXP wt, SEXP xmat, SEXP opt, SEXP node) {
 			ddsplit[i][j] = 0.0;
 		}
 	}
-	// end parallel section
 
 	isplit3 = PROTECT(allocMatrix(INTSXP, splitcnt, 3));
 	iptr = INTEGER(isplit3);

@@ -12,7 +12,7 @@ void free_split(pSplit spl);
 
 void free_tree(pNode node, int freenode);
 
-pSplit insert_split(pSplit *listhead, double improve, int max);
+pSplit insert_split(pSplit *listhead, double *rnd, double improve, int max);
 
 void sort_vec(int start, int stop, double *x, int *cvec);
 

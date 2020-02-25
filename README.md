@@ -53,7 +53,7 @@ head(md)
    X1    X2    X3    X4    X5    X6 
 9.823 7.848 6.164 6.662 6.442 6.390 
 
-res.md$info$threshold
+res$info$threshold
 [1] 9.23097
 ```
 We can see that variables X2, …, X6 have MD values smaller than the threshold in contrast to X1.

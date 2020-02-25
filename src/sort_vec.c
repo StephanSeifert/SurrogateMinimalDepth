@@ -26,7 +26,7 @@ void sort_vec(int start, int stop, double *x, int *cvec) {
 				tempd = cvec[i];
 				j = i - 1;
 
-				while (j >= start && x[j] > temp) {
+				while (start <= j && temp < x[j]) {
 					x[j + 1] = x[j];
 					cvec[j + 1] = cvec[j];
 					j--;
@@ -45,18 +45,18 @@ void sort_vec(int start, int stop, double *x, int *cvec) {
 		k = (start + stop) / 2;
 
 		median = x[k];
-		if (x[i] >= x[k]) {
+		if (x[k] <= x[i]) {
 			/* one of j or k is smallest */
-			if (x[j] > x[k]) {
+			if (x[k] < x[j]) {
 				/* k is smallest */
-				if (x[i] > x[j])
+				if (x[j] < x[i])
 					median = x[j];
 				else
 					median = x[i];
 			}
 		} else {
 			if (x[j] < x[k]) {
-				if (x[i] > x[j])
+				if (x[j] < x[i])
 					median = x[i];
 				else
 					median = x[j];
@@ -82,11 +82,11 @@ void sort_vec(int start, int stop, double *x, int *cvec) {
 				i++;
 
 			/* bottom pointer up until it points at something too small */
-			while (x[j] > median)
+			while (median < x[j])
 				j--;
 
 			if (i < j) {
-				if (x[i] > x[j]) {
+				if (x[j] < x[i]) {
 					/* swap */
 					temp = x[i];
 					x[i] = x[j];
@@ -106,7 +106,7 @@ void sort_vec(int start, int stop, double *x, int *cvec) {
 		 *  the top and bottom ones need further attention.
 		 * The ">=" is needed because i may be  == to j
 		 */
-		while (x[i] >= median && i > start)
+		while (median <= x[i] && start < i)
 			i--;
 		while (x[j] <= median && j < stop)
 			j++;
@@ -118,12 +118,12 @@ void sort_vec(int start, int stop, double *x, int *cvec) {
 		 */
 		if ((i - start) < (stop - j)) {
 			/* top list is shorter */
-			if ((i - start) > 0)
+			if (0 < (i - start))
 				sort_vec(start, i, x, cvec);
 			start = j;
 		} else {
 			/* bottom list is shorter */
-			if ((stop - j) > 0)
+			if (0 < (stop - j))
 				sort_vec(j, stop, x, cvec);
 			stop = i;
 		}

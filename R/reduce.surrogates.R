@@ -15,8 +15,10 @@
 #' \donttest{
 #' ###### use result of SMD variable importance and reduce surrogate variables to 10
 #' # select variables with smd variable importance (usually more trees are needed)
+#' x = SMD_example_data[,2:ncol(SMD_example_data)]
+#' y = SMD_example_data[,1]
 #' set.seed(42)
-#' res = var.select.smd(x = SMD_example_data[,2:ncol(SMD_example_data)], y = SMD_example_data[,1], s = 100, ntree = 10)
+#' res = var.select.smd(x = x, y = y, s = 100, ntree = 10)
 #' forest.new = reduce.surrogates(forest = res$forest, s = 10)
 #'
 #' # execute SMD on tree with reduced number of surrogates
@@ -24,7 +26,8 @@
 #' res.new$var
 #'
 #' #' # investigate variable relations
-#' rel = var.relations(forest = forest.new, variables=c("X1","X7"), candidates = res$forest[["allvariables"]][1:100], t = 5)
+#' candidates = res$forest[["allvariables"]][1:100]
+#' rel = var.relations(forest = forest.new, variables=c("X1","X7"), candidates = candidates, t = 5)
 #' rel$var
 #'}
 #' @export

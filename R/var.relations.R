@@ -21,31 +21,19 @@
 #' @examples
 #' # read data
 #' data("SMD_example_data")
+#' x = SMD_example_data[,2:ncol(SMD_example_data)]
+#' y = SMD_example_data[,1]
 #'
 #' \donttest{
-#' ###### use result of SMD variable importance
-#' # select variables with smd variable importance (usually more trees are needed)
+#' # apply SMD to obtain random forest with surrogate variables (usually more trees are needed)
 #' set.seed(42)
-#' res = var.select.smd(x = SMD_example_data[,2:ncol(SMD_example_data)], y = SMD_example_data[,1], s = 10, ntree = 10)
+#' res = var.select.smd(x = x, y = y, s = 10, ntree = 10)
+#'
 #' # investigate variable relations
-#' rel = var.relations(forest = res$forest, variables=c("X1","X7"), candidates = res$forest[["allvariables"]][1:100], t = 5)
+#' candidates = res$forest[["allvariables"]][1:100]
+#' rel = var.relations(forest = res$forest, variables=c("X1","X7"), candidates = candidates, t = 5)
 #' rel$var
 #'
-#' ###### investigate variable relations without performing variable selection using SMD
-#'  # get trees and variable names
-#'  x = SMD_example_data[,2:ncol(SMD_example_data)]
-#'  y = SMD_example_data[,1]
-#'  allvariables = colnames(x)# extract variables names
-#'  nvar = length(allvariables)   # count number of variables
-#'  set.seed(42)
-#'  RF = ranger::ranger(data = SMD_example_data, dependent.variable.name = "y", num.trees = 10, keep.inbag = TRUE,mtry = floor(nvar^(3/4)), min.node.size = 1)
-#'  trees = getTreeranger(RF = RF, ntree = 10)
-#'  trees.lay = addLayer(trees)
-#'  trees.surr = addSurrogates(RF = RF, trees = trees.lay, s = 10, Xdata = x, num.threads = NULL)
-#'
-#'  # investigate variable relations
-#'  rel=var.relations(forest = list(trees = trees.surr, allvariables = allvariables), variables = c("X1","X7"), candidates = allvariables[1:100], t = 5)
-#'  rel$var
 #' }
 #'
 #' @export

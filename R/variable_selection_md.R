@@ -39,11 +39,13 @@
 #' @examples
 #' # read data
 #' data("SMD_example_data")
+#' x = SMD_example_data[,2:ncol(SMD_example_data)]
+#' y = SMD_example_data[,1]
 #'
 #' \donttest{
 #' # select variables (usually more trees are needed)
 #' set.seed(42)
-#' res = var.select.md(x = SMD_example_data[,2:ncol(SMD_example_data)], y = SMD_example_data[,1], ntree = 10)
+#' res = var.select.md(x = x, y = y, ntree = 10)
 #' res$var
 #' }
 #'

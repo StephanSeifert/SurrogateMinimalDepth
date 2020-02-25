@@ -21,6 +21,7 @@ void surrogate(pNode me, int n1, int n2) {
 	int i, j, k;
 	// the primary split variable
 	int var;
+	double rnd;
 	double split;
 	double improve;
 	// weight sent left and right by primary
@@ -96,7 +97,7 @@ void surrogate(pNode me, int n1, int n2) {
 	int splitLR = rp.csplit;
 	int nthreads;
 #ifdef OPENMP_ON
-	#pragma omp parallel private(i,adj_agree,improve,split,splitLR,ss) num_threads(rp.nthreads)
+	#pragma omp parallel private(i,adj_agree,rnd,improve,split,splitLR,ss) num_threads(rp.nthreads)
 	{
 		// start parallel section
 		#pragma omp single
@@ -114,45 +115,50 @@ void surrogate(pNode me, int n1, int n2) {
 
 			choose_surg(n1, n2, tempy, xdata[i], sorts[i], &improve, &split, &splitLR, lcount, rcount, &adj_agree);
 
+			
 			// org comment: was 0
-			if (adj_agree <= 1e-10)
+			if (adj_agree <= 1e-10){
 				// no better than default
 				continue;
-
-			// sort it onto the list of surrogates
-#ifdef  OPENMP_ON
-			ss = insert_split(&(ss_list[omp_get_thread_num()]), improve, rp.maxsur);
-#else
-			ss = insert_split(&(me->surrogate), improve, rp.maxsur);
-#endif
-			if (ss) {
-				ss->improve = improve;
-				ss->var_num = i;
-				// corrected by nodesplit()
-				ss->count = 0;
-				ss->adj = adj_agree;
-				ss->spoint = split;
-				ss->csplit = splitLR;
 			}
+			
+				// sort it onto the list of surrogates
+#ifdef  OPENMP_ON
+				ss = insert_split(&(ss_list[omp_get_thread_num()]), &rnd, improve, rp.maxsur);
+#else
+				ss = insert_split(&(me->surrogate), &rnd, improve, rp.maxsur);
+#endif
+				if (ss) {
+					ss->improve = improve;
+					ss->rnd = rnd;
+					ss->var_num = i;
+					// corrected by nodesplit()
+					ss->count = 0;
+					ss->adj = adj_agree;
+					ss->spoint = split;
+					ss->csplit = splitLR;
+				}
+
 
 		}
 #ifdef OPENMP_ON
 	}
 // end parallel section
 	for (i = 0; i < nthreads; ++i) {
-		if (ss_list[i] != NULL)
-			for (pSplit lh = ss_list[i]; lh->nextsplit; lh = lh->nextsplit) {
-				ss = insert_split(&(me->surrogate), lh->improve, rp.maxsur);
-				if (ss) {
-					ss->improve = lh->improve;
-					ss->var_num = lh->var_num;
-					// corrected by nodesplit()
-					ss->count = lh->count;
-					ss->adj = lh->adj;
-					ss->spoint = lh->spoint;
-					ss->csplit = lh->csplit;
-				}
+		if (ss_list[i] != NULL){
+			for (pSplit lh = ss_list[i]; lh;lh = lh->nextsplit) {
+					ss = insert_split(&(me->surrogate), &(lh->rnd), lh->improve, rp.maxsur);
+					if (ss) {
+						ss->improve = lh->improve;
+						ss->var_num = lh->var_num;
+						// corrected by nodesplit()
+						ss->count = lh->count;
+						ss->adj = lh->adj;
+						ss->spoint = lh->spoint;
+						ss->csplit = lh->csplit;
+					}
 			}
+		}
 	}
 	// clear DMA
 	for (i = 0; i < nthreads; ++i)

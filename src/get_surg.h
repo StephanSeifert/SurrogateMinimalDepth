@@ -30,7 +30,7 @@
 //  In contrast functions from omp.h must be protected.
 
 
-// TODO DEBUG
+// DEBUG
 //#define DEBUG
 ////#ifdef DEBUG
 ////Rprintf("Hello from thread %d, nthreads %d\n", omp_get_thread_num(), omp_get_num_threads());
@@ -54,6 +54,7 @@
 // latter for objects that need to persist between the
 // s_to_rp1 and s_to_rp2 calls
 
+// TODO wiki broken dynamic memory allocation
 #define ALLOC(a,b) R_alloc(a,b)
 #define CALLOC(a,b) R_chk_calloc((size_t)(a), b)
 
@@ -83,6 +84,8 @@ EXTERN struct {
 	int nvar;
 	// max # of primary or surrogate splits to use
 	int maxsur;
+	// ignore maxsur
+	int all;
 	// 0 = my style, 1=CART style
 	int sur_agree;
 	// to be allocated by the mainline, of length n

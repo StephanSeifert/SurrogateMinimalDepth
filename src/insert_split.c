@@ -11,9 +11,10 @@
 #include "node.h"
 #include "rpartproto.h"
 
-pSplit insert_split(pSplit *listhead, double improve, int max) {
+pSplit insert_split(pSplit *listhead, double *rnd, double improve, int max) {
 	int nlist;
 	pSplit s1, s2, s3 = NULL, s4;
+	
 
 	// The Split structure is sized for 2 categories.
 	if (*listhead == 0) {
@@ -24,28 +25,40 @@ pSplit insert_split(pSplit *listhead, double improve, int max) {
 		*listhead = s3;
 		return s3;
 	}
-	if (max < 2) {
-		// user asked for only 1 to be retained!
-		s3 = *listhead;
-		if (improve <= s3->improve)
-			return NULL;
-		return s3;
-	}
-	// set up --- nlist = length of list, s4=last element, s3=next to last
+
+	// set up --- nlist = length of list, s4=last element, s3=next to last, rnd = unique random number
 	nlist = 1;
+	*rnd = norm_rand();
 	for (s4 = *listhead; s4->nextsplit; s4 = s4->nextsplit) {
 		s3 = s4;
 		nlist++;
+		if(improve == s4->improve && *rnd == s4->rnd) {
+			// reset loop if rnd is already used
+			// only if rnds are really equal
+			// doubles are normally always unequal
+			s4 = *listhead;
+			nlist = 1;
+			*rnd = norm_rand();
+		}
+	}
+	
+	if (max < 2) {
+		// user asked for only 1 to be retained!
+		s3 = *listhead;
+		if (improve < s3->improve || (improve == s3->improve && *rnd < s3->rnd)) {
+			return NULL;
+		} 
+		return s3;
 	}
 
 	// now set up so that the "to be added" is between s1 and s2
 	s1 = *listhead;
 	for (s2 = *listhead; s2; s2 = s2->nextsplit) {
-		if (improve > s2->improve)
+		if (s2->improve < improve || (s2->improve == improve && s2->rnd < *rnd))
 			break;
 		s1 = s2;
 	}
-	if (nlist == max) {
+	if (nlist == max && rp.all == 0) {
 		if (s2 == 0)
 			// not good enough
 			return NULL;

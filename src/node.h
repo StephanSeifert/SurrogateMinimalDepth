@@ -10,6 +10,8 @@
 // csplit[0] gets used even for continuous splits.
 
 typedef struct split {
+	// for surrogates only, value to distinguish equal improve values
+	double rnd;
 	double improve;
 	// for surrogates only, adjusted agreement
 	double adj;
