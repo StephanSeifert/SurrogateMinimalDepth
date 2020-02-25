@@ -1,7 +1,7 @@
 Version 0.1.10 - fixed bug not including first and last surrogate
 	       - added random selection of surrogates when adj_agree are the same
 	       - fixed bug in var.relation example
-	       - added build.clusters function to obtain variable groups  
+	       - added build.clusters function to obtain variable groups based on mean adjusted agreement 
 
 Version 0.1.9	- some specifics to set s in var.select.smd were adapted
 		- added save.memory parameter (to build the forest with ranger) to 				var.select.smd and var.select.md  
