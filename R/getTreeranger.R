@@ -28,7 +28,7 @@ return(trees)
 #' @keywords internal
 getTreeranger_k=function(RF,k=1){
   trees=RF$forest
-  split.ids=trees$split.varIDs[[k]]
+  split.ids=trees$split.varIDs[[k]] + 1
   status=rep(1,length(split.ids))
   child.nodes.left=trees$child.nodeIDs[[k]][[1]]+1
   terminal=which(child.nodes.left == 1)
