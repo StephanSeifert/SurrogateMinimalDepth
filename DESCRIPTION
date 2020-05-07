@@ -9,7 +9,7 @@ License: GPL-2
 Encoding: UTF-8
 LazyData: true
 Imports:
-	ranger,
+	ranger (>= 0.12.1),
 	Rcpp,
 	randomForestSRC,
 	linkcomm
