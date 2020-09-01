@@ -35,7 +35,7 @@ meanAdjAgree=function(trees,variables,allvariables,candidates,t,s.a){
   results.allvar[p,]=means.surr.candidate
   }
   # calculate threshold and select variables according to it
-  adj.mean=mean(unlist(lapply((1:ntree),adj.mean.trees,trees)))
+  adj.mean=mean(unlist(lapply((1:ntree),adj.mean.trees,trees)),na.rm = TRUE)
   threshold=((s.a*adj.mean)/(length(allvariables)-1))*t
   SurrVar=ifelse(results.allvar>threshold, 1, 0)
   result=list(surr.res=results.allvar,threshold=threshold,surr.var=SurrVar,variables=variables)
@@ -120,6 +120,9 @@ adj.mean=function(trees){
     nonterminal.nodes=tree[which(sapply(tree,"[[","status")==1)]
     surr.nonterminal=lapply(nonterminal.nodes,"[",-c(1:7))
     adj.tree=mean(unlist(lapply(1:length(surr.nonterminal),adj.node,surr.nonterminal)),na.rm = TRUE)
+    if (adj.tree == "NaN") {
+      adj.tree = NA
+    }
     return(adj.tree)
   }
 
