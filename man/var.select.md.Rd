@@ -4,10 +4,20 @@
 \alias{var.select.md}
 \title{Variable selection with Minimal Depth (MD)}
 \usage{
-var.select.md(x = NULL, y = NULL, ntree = 500, type = "regression",
-  mtry = NULL, min.node.size = 1, num.threads = NULL,
-  status = NULL, save.ranger = FALSE, create.forest = TRUE,
-  forest = NULL, save.memory = FALSE)
+var.select.md(
+  x = NULL,
+  y = NULL,
+  ntree = 500,
+  type = "regression",
+  mtry = NULL,
+  min.node.size = 1,
+  num.threads = NULL,
+  status = NULL,
+  save.ranger = FALSE,
+  create.forest = TRUE,
+  forest = NULL,
+  save.memory = FALSE
+)
 }
 \arguments{
 \item{x}{matrix or data.frame of predictor variables with variables in

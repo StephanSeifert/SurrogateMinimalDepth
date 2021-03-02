@@ -4,7 +4,9 @@
 \name{SMD_example_data}
 \alias{SMD_example_data}
 \title{Example data set for the package SurrogateMinimalDepth}
-\format{A matrix with 100 rows and 1001 columns}
+\format{
+A matrix with 100 rows and 1001 columns
+}
 \usage{
 data(SMD_example_data)
 }

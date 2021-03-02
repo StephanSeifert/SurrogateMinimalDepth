@@ -7,7 +7,7 @@
 #' @param y vector with values of phenotype variable (Note: will be converted to factor if
 #'   classification mode is used). For survival forests this is the time variable.
 #' @param ntree number of trees. Default is 500.
-#' @param mtry number of variables to possibly split at in each node. Default is no. of variables^(3/4) as recommended by (Ishwaran 2011).
+#' @param mtry number of variables to possibly split at in each node. Default is no. of variables^(3/4) ("^3/4") as recommended by (Ishwaran 2011). Also possible is "sqrt" and "0.5" to use the square root or half of the no. of variables.
 #' @param type mode of prediction ("regression" or "classification"). Default is regression.
 #' @param min.node.size minimal node size. Default is 1.
 #' @param num.threads number of threads used for parallel execution. Default is number of CPUs available.
@@ -53,6 +53,7 @@
 #' }
 #'@references
 ##' \itemize{
+##'   \item Seifert, S. et al. (2019) Surrogate minimal depth as an importance measure for variables in random forests. Bioinformatics, 35, 3663–3671. \url{https://academic.oup.com/bioinformatics/article/35/19/3663/5368013}
 ##'   \item Ishwaran, H. et al. (2011) Random survival forests for high-dimensional data. Stat Anal Data Min, 4, 115–132. \url{https://onlinelibrary.wiley.com/doi/abs/10.1002/sam.10103}
 ##'   \item Ishwaran, H. et al. (2010) High-Dimensional Variable Selection for Survival Data. J. Am. Stat. Assoc., 105, 205–217. \url{http://www.ccs.miami.edu/~hishwaran/papers/IKGML.JASA.2010.pdf}
 ##'   }
@@ -76,7 +77,16 @@ var.select.smd = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
 
   ## set global parameters
   if (is.null(mtry)) {
-    mtry = floor(nvar^(3/4))
+    mtry = floor((nvar)^(3/4))
+  }
+  if (mtry == "sqrt") {
+    mtry = floor(sqrt(nvar))
+  }
+  if (mtry == "0.5") {
+    mtry = floor(0.5*nvar)
+  }
+  if (mtry == "^3/4") {
+    mtry = floor((nvar)^(3/4))
   }
 
 
