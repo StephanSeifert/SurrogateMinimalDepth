@@ -12,7 +12,7 @@
 #' @param min.node.size minimal node size. Default is 1.
 #' @param num.threads number of threads used for parallel execution. Default is number of CPUs available.
 #' @param s predefined number of surrogate splits (it may happen that the actual number of surrogate splits differs in individual nodes). Default is 1 \% of no. of variables.
-#' @param p.t p.value threshold for variable selection. Default is 0.05
+#' @param p.t p.value threshold for variable selection. Default is 0.01
 #' @param num.p number of permuted variables used to determine p-value for variable selection. Default is 500.
 #' @param status status variable, only applicable to survival data. Use 1 for event and 0 for censoring.
 #' @param save.ranger set TRUE if ranger object should be saved. Default is that ranger object is not saved (FALSE).
@@ -58,7 +58,7 @@
 
 var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
                           num.threads = NULL, status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL,
-                          save.memory = FALSE, num.p = 500, p.t = 0.05) {
+                          save.memory = FALSE, num.p = 500, p.t = 0.01) {
   if (create.forest) {
     ## check data
     if (length(y) != nrow(x)) {
