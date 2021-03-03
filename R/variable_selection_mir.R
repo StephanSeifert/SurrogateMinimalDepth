@@ -19,6 +19,7 @@
 #' @param create.forest set FALSE if you want to analyze an existing forest. Default is TRUE.
 #' @param forest the random forest that should be analyzed if create.forest is set to FALSE. (x and y still have to be given to obtain variable names)
 #' @param save.memory Use memory saving (but slower) splitting mode. No effect for survival and GWAS data. Warning: This option slows down the tree growing, use only if you encounter memory problems. (This parameter is transfered to ranger)
+#' @param select.var set False if only importance should be calculated and no variables should be selected
 
 #' @return list with the following components:
 #' \itemize{
@@ -58,7 +59,7 @@
 
 var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
                           num.threads = NULL, status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL,
-                          save.memory = FALSE, num.p = 500, p.t = 0.01) {
+                          save.memory = FALSE, num.p = 500, p.t = 0.01, select.var = TRUE) {
   if (create.forest) {
     ## check data
     if (length(y) != nrow(x)) {
@@ -106,7 +107,7 @@ var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
       stop("use factor variable for y only for classification! ")
     }
     # create shadow variables to simulate unimportance variables for the determination of the p-value
-
+  if (select.var) {
   if (num.p > ncol(x)) {
     message("More permuted variables than original variables are needed. They are sampled with replacement")
     var.perm = sample(c(1:ncol(x)),num.p, replace = TRUE)
@@ -118,6 +119,9 @@ var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
     colnames(x_perm) = paste(variables[var.perm],"_perm", sep = "")
   }
     data = data.frame(y, x, x_perm)
+  } else {
+    data = data.frame(y, x)
+  }
     if (type == "survival") {
       if (is.null(status)) {
         stop("a status variables has to be given for survival analysis")
@@ -153,8 +157,9 @@ var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
   adj.agree = rel$surr.res
   adj.agree[which(is.na(adj.agree))] = 1
   mir = rowSums(t(t(adj.agree) * RF$variable.importance))
-  vimp = mir[(length(variables) + 1):length(mir)]
 
+  if (select.var) {
+  vimp = mir[(length(variables) + 1):length(mir)]
   # compute p-values using numSmaller function from ranger
   pval <- 1 - ranger:::numSmaller(mir[1:length(variables)], vimp) / length(vimp)
   names(pval) = variables
@@ -165,7 +170,10 @@ var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
               pvalue = pval,
               selected =selected,
               parameters = list(s = s, type = type, mtry = mtry, p.t = p.t))
-
+  } else {
+    info = list(MIR = mir,
+                parameters = list(s = s, type = type, mtry = mtry))
+}
 
   if (save.ranger) {
     results = list(info = info,var = names(info$selected[info$selected == 1]),
