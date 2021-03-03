@@ -153,7 +153,7 @@ var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
   adj.agree = rel$surr.res
   adj.agree[which(is.na(adj.agree))] = 1
   mir = rowSums(t(t(adj.agree) * RF$variable.importance))
-  vimp = sgi[(length(variables) + 1):length(mir)]
+  vimp = mir[(length(variables) + 1):length(mir)]
 
   # compute p-values using numSmaller function from ranger
   pval <- 1 - ranger:::numSmaller(mir[1:length(variables)], vimp) / length(vimp)
