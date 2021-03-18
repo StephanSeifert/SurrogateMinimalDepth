@@ -17,7 +17,9 @@
 #' @param create.forest set FALSE if you want to analyze an existing forest. Default is TRUE.
 #' @param forest the random forest that should be analyzed if create.forest is set to FALSE. (x and y still have to be given to obtain variable names)
 #' @param save.memory Use memory saving (but slower) splitting mode. No effect for survival and GWAS data. Warning: This option slows down the tree growing, use only if you encounter memory problems. (This parameter is transfered to ranger)
-
+#' @param case.weights Weights for sampling of training observations. Observations with larger weights will be selected with higher probability in the bootstrap (or subsampled) samples for the trees.
+#' @param MD set TRUE if Minimal Depth instead of Surrogate Minimal Depth should be conducted.
+#'
 #' @return list with the following components:
 #' \itemize{
 #' \item info: list with results from surrmindep function:
@@ -61,7 +63,7 @@
 
 var.select.smd = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
                           num.threads = NULL, status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL,
-                          save.memory = FALSE) {
+                          save.memory = FALSE, case.weights = NULL) {
   if (create.forest) {
   ## check data
   if (length(y) != nrow(x)) {
@@ -116,11 +118,12 @@ var.select.smd = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
     }
     data$status = status
     RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
-                        keep.inbag = TRUE, num.threads = num.threads, dependent.variable.name = "status", save.memory = save.memory)
+                        keep.inbag = TRUE, num.threads = num.threads, dependent.variable.name = "status", save.memory = save.memory,
+                        case.weights = case.weights)
   }
   if (type == "classification" | type == "regression") {
   RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
-                      keep.inbag = TRUE, num.threads = num.threads)
+                      keep.inbag = TRUE, num.threads = num.threads, case.weights = case.weights)
   }
   trees = getTreeranger(RF = RF,ntree = ntree)
   trees.lay = addLayer(trees)

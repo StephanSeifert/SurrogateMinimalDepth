@@ -16,6 +16,7 @@
 #' @param create.forest set FALSE if you want to analyze an existing forest. Default is TRUE.
 #' @param forest the random forest that should be analyzed if create.forest is set to FALSE. (x and y still have to be given to obtain variable names)
 #' @param save.memory Use memory saving (but slower) splitting mode. No effect for survival and GWAS data. Warning: This option slows down the tree growing, use only if you encounter memory problems. (This parameter is transfered to ranger)
+#' @param case.weights Weights for sampling of training observations. Observations with larger weights will be selected with higher probability in the bootstrap (or subsampled) samples for the trees.
 #'
 #' @return List with the following components:
 #' \itemize{
@@ -60,7 +61,7 @@ var.select.md = function(x = NULL, y = NULL, ntree = 500, type = "regression", m
 
   results.smd = var.select.smd(x = x, y = y ,ntree = ntree,type = type, mtry = mtry,min.node.size = min.node.size, num.threads = num.threads
                                ,status = status, save.ranger = save.ranger, s = 0, create.forest = create.forest, forest = forest,
-                               save.memory = save.memory)
+                               save.memory = save.memory, case.weights = case.weights)
   if (save.ranger) {
     results = list(info = results.smd$info, var = results.smd$var, forest = results.smd$forest, ranger = results.smd$ranger)
   }

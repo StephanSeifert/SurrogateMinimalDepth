@@ -12,7 +12,8 @@
 #' @param min.node.size minimal node size. Default is 1.
 #' @param num.threads number of threads used for parallel execution. Default is number of CPUs available.
 #' @param s predefined number of surrogate splits (it may happen that the actual number of surrogate splits differs in individual nodes). Default is 1 \% of no. of variables.
-#' @param p.t p.value threshold for selection of important and related variables. Default is 0.01
+#' @param p.t.sel p.value threshold for selection of important variables. Default is 0.01
+#' @param p.t.rel p.value threshold for selection of related variables. Default is 0.01
 #' @param min.var.p minimum number of permuted variables used to determine p-value for variable selection of important and related variables. Default is 200.
 #' @param status status variable, only applicable to survival data. Use 1 for event and 0 for censoring.
 #' @param save.ranger set TRUE if ranger object should be saved. Default is that ranger object is not saved (FALSE).
@@ -20,6 +21,7 @@
 #' @param forest the random forest that should be analyzed if create.forest is set to FALSE. (x and y still have to be given to obtain variable names)
 #' @param save.memory Use memory saving (but slower) splitting mode. No effect for survival and GWAS data. Warning: This option slows down the tree growing, use only if you encounter memory problems. (This parameter is transfered to ranger)
 #' @param select.var set False if only importance and relations should be calculated and no variables should be selected
+#' @param case.weights Weights for sampling of training observations. Observations with larger weights will be selected with higher probability in the bootstrap (or subsampled) samples for the trees.
 
 #' @return list with the following components:
 #' \itemize{
@@ -34,7 +36,7 @@
 #'  \item p.rel: a list with the obtained p-values for the relation analysis of each variable
 #'  \item var.rel: a list with vectors of related variables for each variable
 #'  }
-#' \item parameters: a list that contains the parameters s, type, mtry and p.t that were used.
+#' \item parameters: a list that contains the parameters s, type, mtry, p.t.sel, p.t.rel that were used.
 #' }
 #' \item var: vector of selected variables.
 #'
@@ -65,7 +67,8 @@
 
 var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
                           num.threads = NULL, status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL,
-                          save.memory = FALSE, min.var.p = 200, p.t = 0.01, select.var = TRUE) {
+                          save.memory = FALSE, min.var.p = 200, p.t.sel = 0.01, p.t.rel = 0.01, select.var = TRUE,
+                          case.weights = NULL) {
   if (create.forest) {
     ## check data
     if (length(y) != nrow(x)) {
@@ -131,11 +134,11 @@ var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
       data$status = status
       RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
                           keep.inbag = TRUE, num.threads = num.threads, dependent.variable.name = "status", save.memory = save.memory,
-                          importance ="impurity_corrected")
+                          importance ="impurity_corrected", case.weights = case.weights)
     }
     if (type == "classification" | type == "regression") {
       RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
-                          keep.inbag = TRUE, num.threads = num.threads, importance ="impurity_corrected")
+                          keep.inbag = TRUE, num.threads = num.threads, importance ="impurity_corrected", case.weights = case.weights)
     }
     trees = getTreeranger(RF = RF,ntree = ntree)
     trees.lay = addLayer(trees)
@@ -170,7 +173,7 @@ var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
 
   sel.rel = lapply(1:length(variables),select.related,
                    rel.p,
-                   p.t)
+                   p.t.rel)
 
   names(rel.p) = names(sel.rel) = variables
 
@@ -192,14 +195,14 @@ var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
   # compute p-values using numSmaller function from ranger
   pval <- 1 - ranger:::numSmaller(mir[1:length(variables)], mir.perm) / length(mir.perm)
   names(pval) = variables
-  selected = as.numeric(pval < p.t)
+  selected = as.numeric(pval < p.t.sel)
   names(selected) = names(pval)
 
   info = list(MIR = mir,
               pvalue = pval,
               selected = selected,
               relations = relations,
-              parameters = list(s = s, type = type, mtry = mtry, p.t = p.t))
+              parameters = list(s = s, type = type, mtry = mtry, p.t.sel = p.t.sel, p.t.rel = p.t.rel))
   } else {
     info = list(MIR = mir,
                 relations = relations,
