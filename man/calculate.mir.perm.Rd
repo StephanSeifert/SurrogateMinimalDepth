@@ -4,7 +4,7 @@
 \alias{calculate.mir.perm}
 \title{calculate.mir.perm}
 \usage{
-calculate.mir.perm(r = 1, adj.agree.corr, air, variables)
+calculate.mir.perm(r = 1, adj.agree.perm, air, variables)
 }
 \description{
 This is an internal function

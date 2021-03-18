@@ -17,8 +17,6 @@
 #' @param min.var.p minimum number of permuted variables used to determine p-value for variable selection of important and related variables. Default is 200.
 #' @param status status variable, only applicable to survival data. Use 1 for event and 0 for censoring.
 #' @param save.ranger set TRUE if ranger object should be saved. Default is that ranger object is not saved (FALSE).
-#' @param create.forest set FALSE if you want to analyze an existing forest. Default is TRUE.
-#' @param forest the random forest that should be analyzed if create.forest is set to FALSE. (x and y still have to be given to obtain variable names)
 #' @param save.memory Use memory saving (but slower) splitting mode. No effect for survival and GWAS data. Warning: This option slows down the tree growing, use only if you encounter memory problems. (This parameter is transfered to ranger)
 #' @param select.var set False if only importance and relations should be calculated and no variables should be selected
 #' @param case.weights Weights for sampling of training observations. Observations with larger weights will be selected with higher probability in the bootstrap (or subsampled) samples for the trees.
@@ -66,10 +64,10 @@
 #' @export
 
 var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
-                          num.threads = NULL, status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL,
+                          num.threads = NULL, status = NULL, save.ranger = FALSE,
                           save.memory = FALSE, min.var.p = 200, p.t.sel = 0.01, p.t.rel = 0.01, select.var = TRUE,
                           case.weights = NULL) {
-  if (create.forest) {
+
     ## check data
     if (length(y) != nrow(x)) {
       stop("length of y and number of rows in x are different")
@@ -81,7 +79,7 @@ var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
 
     variables = colnames(x)# extract variables names
     f = ceiling(min.var.p / (ncol(x))) # f determines how often the variables are permuted
-    nvar = length(variables) + f * length(variables)  #count variables
+    nvar = length(variables)  #count variables
     ## set global parameters
     if (is.null(mtry)) {
       mtry = floor((nvar)^(3/4))
@@ -126,7 +124,8 @@ var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
     x_perm = cbind(x_perm,x_perm2)
   }
   }
-    data = data.frame(y, x, x_perm)
+    data = data.frame(y, x)
+    data_perm = data.frame(y, x_perm)
     if (type == "survival") {
       if (is.null(status)) {
         stop("a status variables has to be given for survival analysis")
@@ -135,9 +134,14 @@ var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
       RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
                           keep.inbag = TRUE, num.threads = num.threads, dependent.variable.name = "status", save.memory = save.memory,
                           importance ="impurity_corrected", case.weights = case.weights)
+      RF_perm = ranger::ranger(data = data_perm,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
+                          keep.inbag = TRUE, num.threads = num.threads, dependent.variable.name = "status", save.memory = save.memory,
+                          importance ="impurity_corrected", case.weights = case.weights)
     }
     if (type == "classification" | type == "regression") {
       RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
+                          keep.inbag = TRUE, num.threads = num.threads, importance ="impurity_corrected", case.weights = case.weights)
+      RF_perm = ranger::ranger(data = data_perm,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
                           keep.inbag = TRUE, num.threads = num.threads, importance ="impurity_corrected", case.weights = case.weights)
     }
     trees = getTreeranger(RF = RF,ntree = ntree)
@@ -148,26 +152,29 @@ var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
     rm(trees.lay)
     forest = list(trees = trees.surr, allvariables = colnames(data[,-1]))
 
-  }
-  if (!create.forest) {
-    if (is.null(forest)) {
-      stop("set create.forest to TRUE or analyze an existing random forest specified by parameter forest")
-    }
-    trees.surr = forest[["trees"]]
-    variables = forest[["variables"]]
-  }
+    # do the same for the permutation forrest
+    trees_perm = getTreeranger(RF = RF_perm,ntree = ntree)
+    trees.lay_perm = addLayer(trees_perm)
+    rm(trees_perm)
+    ###AddSurrogates###
+    trees.surr_perm = addSurrogates(RF = RF_perm,trees = trees.lay_perm,s = s,Xdata = data_perm[,-1], num.threads = num.threads)
+    rm(trees.lay_perm)
+    forest_perm = list(trees = trees.surr_perm, allvariables = colnames(data_perm[,-1]))
+
 
   # determine variable relations
   rel = var.relations(forest = forest,variables = colnames(data[,-1]), candidates = colnames(data[,-1]))
+  rel_perm = var.relations(forest = forest_perm,variables = colnames(data_perm[,-1]), candidates = colnames(data_perm[,-1]))
+
   adj.agree = rel$surr.res
-  adj.agree.var = adj.agree[1:length(variables),1:length(variables)]
-  adj.agree.perm = adj.agree[1:length(variables),(length(variables) + 1):(2*length(variables))]
-  adj.agree.corr = adj.agree.var - adj.agree.perm
+  adj.agree.perm = rel_perm$surr.res
+  adj.agree.corr = adj.agree - adj.agree.perm
 
 
   if (select.var) {
   rel.p = lapply(1:length(variables),p.relation,
                   adj.agree = adj.agree,
+                 adj.agree.perm = adj.agree.perm,
                   adj.agree.corr = adj.agree.corr,
                   variables = variables)
 
@@ -188,8 +195,8 @@ var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
 
   if (select.var) {
   mir.perm = unlist(lapply(1:f,calculate.mir.perm,
-                    adj.agree.corr = adj.agree.corr,
-                    air = RF$variable.importance,
+                    adj.agree.perm = adj.agree.perm,
+                    air = RF_perm$variable.importance,
                     variables = variables))
 
   # compute p-values using numSmaller function from ranger
@@ -238,8 +245,8 @@ permute.variable=function(i=1,x){
 #' This is an internal function
 #'
 #' @keywords internal
-calculate.mir.perm = function(r=1, adj.agree.corr, air, variables) {
-mir.perm = rowSums(t(t(adj.agree.corr) * air[(r * length(variables) + 1):((r+1) * length(variables))]))
+calculate.mir.perm = function(r=1, adj.agree.perm, air, variables) {
+mir.perm = rowSums(t(t(adj.agree.perm) * air[((r-1) * length(variables) + 1):(r * length(variables))]),na.rm = TRUE)
 return(mir.perm)
 }
 
@@ -250,10 +257,11 @@ return(mir.perm)
 #' @keywords internal
 p.relation = function(l = 1,
                       adj.agree,
+                      adj.agree.perm,
                       adj.agree.corr,
                       variables) {
  relations = adj.agree.corr[l,]
- null.rel = adj.agree[l,(length(variables) + 1):ncol(adj.agree)]
+ null.rel = adj.agree.perm[l,]
  pval <- 1 - ranger:::numSmaller(relations, null.rel) / length(null.rel)
  names(pval) = variables
  pval[l] = NA

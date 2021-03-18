@@ -15,12 +15,12 @@ var.select.mir(
   num.threads = NULL,
   status = NULL,
   save.ranger = FALSE,
-  create.forest = TRUE,
-  forest = NULL,
   save.memory = FALSE,
   min.var.p = 200,
-  p.t = 0.01,
-  select.var = TRUE
+  p.t.sel = 0.01,
+  p.t.rel = 0.01,
+  select.var = TRUE,
+  case.weights = NULL
 )
 }
 \arguments{
@@ -46,17 +46,17 @@ classification mode is used). For survival forests this is the time variable.}
 
 \item{save.ranger}{set TRUE if ranger object should be saved. Default is that ranger object is not saved (FALSE).}
 
-\item{create.forest}{set FALSE if you want to analyze an existing forest. Default is TRUE.}
-
-\item{forest}{the random forest that should be analyzed if create.forest is set to FALSE. (x and y still have to be given to obtain variable names)}
-
 \item{save.memory}{Use memory saving (but slower) splitting mode. No effect for survival and GWAS data. Warning: This option slows down the tree growing, use only if you encounter memory problems. (This parameter is transfered to ranger)}
 
 \item{min.var.p}{minimum number of permuted variables used to determine p-value for variable selection of important and related variables. Default is 200.}
 
-\item{p.t}{p.value threshold for selection of important and related variables. Default is 0.01}
+\item{p.t.sel}{p.value threshold for selection of important variables. Default is 0.01}
+
+\item{p.t.rel}{p.value threshold for selection of related variables. Default is 0.01}
 
 \item{select.var}{set False if only importance and relations should be calculated and no variables should be selected}
+
+\item{case.weights}{Weights for sampling of training observations. Observations with larger weights will be selected with higher probability in the bootstrap (or subsampled) samples for the trees.}
 }
 \value{
 list with the following components:
@@ -72,7 +72,7 @@ list with the following components:
  \item p.rel: a list with the obtained p-values for the relation analysis of each variable
  \item var.rel: a list with vectors of related variables for each variable
  }
-\item parameters: a list that contains the parameters s, type, mtry and p.t that were used.
+\item parameters: a list that contains the parameters s, type, mtry, p.t.sel, p.t.rel that were used.
 }
 \item var: vector of selected variables.
 

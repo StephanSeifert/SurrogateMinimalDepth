@@ -4,7 +4,7 @@
 \alias{p.relation}
 \title{calculate.mir.perm}
 \usage{
-p.relation(l = 1, adj.agree, adj.agree.corr, variables)
+p.relation(l = 1, adj.agree, adj.agree.perm, adj.agree.corr, variables)
 }
 \description{
 This is an internal function
