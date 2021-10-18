@@ -20,7 +20,13 @@ var.select.mir(
   p.t.sel = 0.01,
   p.t.rel = 0.01,
   select.var = TRUE,
-  case.weights = NULL
+  select.rel = FALSE,
+  case.weights = NULL,
+  corr.rel = TRUE,
+  t = 5,
+  method.rel = "janitza",
+  method.sel = "janitza",
+  num.threads.rel = NULL
 )
 }
 \arguments{
@@ -48,15 +54,27 @@ classification mode is used). For survival forests this is the time variable.}
 
 \item{save.memory}{Use memory saving (but slower) splitting mode. No effect for survival and GWAS data. Warning: This option slows down the tree growing, use only if you encounter memory problems. (This parameter is transfered to ranger)}
 
-\item{min.var.p}{minimum number of permuted variables used to determine p-value for variable selection of important and related variables. Default is 200.}
+\item{min.var.p}{minimum number of permuted variables used to determine p-value for variable selection of important variables. Default is 200.}
 
-\item{p.t.sel}{p.value threshold for selection of important variables. Default is 0.01}
+\item{p.t.sel}{p.value threshold for selection of important variables. Default is 0.01.}
 
-\item{p.t.rel}{p.value threshold for selection of related variables. Default is 0.01}
+\item{p.t.rel}{p.value threshold for selection of related variables. Default is 0.01.}
 
-\item{select.var}{set False if only importance and relations should be calculated and no variables should be selected}
+\item{select.var}{set False if only importance should be calculated and no variables should be selected.}
+
+\item{select.rel}{set False if only relations should be calculated and no variables should be selected.}
 
 \item{case.weights}{Weights for sampling of training observations. Observations with larger weights will be selected with higher probability in the bootstrap (or subsampled) samples for the trees.}
+
+\item{corr.rel}{set FALSE if non-corrected variable relations should be used for calculation of MIR. In this case the method "janitza" should not be used for selection of important variables}
+
+\item{t}{variable to calculate threshold for non-corrected relation analysis. Default is 5.}
+
+\item{method.rel}{Method  to  compute  p-values for selection of related variables with var.relations.corr. Use  "janitza"  for  the  method  by  Janitza  et  al. (2016) or "permutation" to utilize permuted variables.}
+
+\item{method.sel}{Method  to  compute  p-values for selection of important variables. Use  "janitza"  for  the  method  by  Janitza  et  al. (2016) (can only be used when corrected variable relations are utilized) or "permutation" to utilize permuted variables.}
+
+\item{num.threads.rel}{number of threads used for determination of relations. Default is number of CPUs available. (this process can be memory-intensive and it can be preferable to reduce this)}
 }
 \value{
 list with the following components:
@@ -66,21 +84,11 @@ list with the following components:
 \item MIR: the calculated variable importance for each variable based on mutual impurity reduction.
 \item pvalue: the obtained p-values for each variable.
 \item selected: variables has been selected (1) or not (0).
-\item relations: a list containing the relation analysis results:
- \itemize{
- \item corr.maa: a matrix with corrected mean adjusted agreement values. For each variable in the rows the relation parameter of each variable can be found in the columns.
- \item p.rel: a list with the obtained p-values for the relation analysis of each variable
- \item var.rel: a list with vectors of related variables for each variable
- }
-\item parameters: a list that contains the parameters s, type, mtry, p.t.sel, p.t.rel that were used.
+\item relations: a list containing the results of variable relation analysis.
+\item parameters: a list that contains the parameters s, type, mtry, p.t.sel, p.t.rel and method.sel that were used.
 }
 \item var: vector of selected variables.
 
-\item forest: a list containing:
-\itemize{
-\item trees: list of trees that was created by getTreeranger, addLayer, and addSurrogates functions and that was used for surrogate minimal depth variable importance.
-\item allvariables: all variable names of the predictor variables that are present in x.
-}
 \item ranger: ranger object.
 
 }

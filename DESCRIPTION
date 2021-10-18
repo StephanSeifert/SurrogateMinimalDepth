@@ -12,6 +12,7 @@ Imports:
 	ranger (>= 0.12.1),
 	Rcpp,
 	randomForestSRC,
-	linkcomm
+	linkcomm,
+  parallel
 RoxygenNote: 7.1.0
 LinkingTo: Rcpp

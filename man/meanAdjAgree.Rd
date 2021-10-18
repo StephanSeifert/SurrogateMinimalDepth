@@ -4,7 +4,16 @@
 \alias{meanAdjAgree}
 \title{Calculate mean adjusted agreement to investigate variables relations}
 \usage{
-meanAdjAgree(trees, variables, allvariables, candidates, t, s.a)
+meanAdjAgree(
+  trees,
+  variables,
+  allvariables,
+  candidates,
+  t,
+  s.a,
+  select.var,
+  num.threads = NULL
+)
 }
 \arguments{
 \item{trees}{list of trees created by getTreeranger, addLayer and addSurrogate.}
@@ -18,6 +27,10 @@ meanAdjAgree(trees, variables, allvariables, candidates, t, s.a)
 \item{t}{variable to calculate threshold. Default is 3.}
 
 \item{s.a}{average number of surrogate variables (ideally calculated by count.surrogates function).}
+
+\item{select.var}{set False if only relations should be calculated and no related variables should be selected.}
+
+\item{num.threads}{number of threads used for parallel execution. Default is number of CPUs available.}
 }
 \value{
 a list containing:

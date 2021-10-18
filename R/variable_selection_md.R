@@ -57,7 +57,7 @@
 #' @export
 
 var.select.md = function(x = NULL, y = NULL, ntree = 500, type = "regression", mtry = NULL, min.node.size = 1, num.threads = NULL,
-                         status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL, save.memory = FALSE) {
+                         status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL, save.memory = FALSE, case.weights = NULL) {
 
   results.smd = var.select.smd(x = x, y = y ,ntree = ntree,type = type, mtry = mtry,min.node.size = min.node.size, num.threads = num.threads
                                ,status = status, save.ranger = save.ranger, s = 0, create.forest = create.forest, forest = forest,

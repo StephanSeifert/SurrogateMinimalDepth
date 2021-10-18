@@ -2,9 +2,9 @@
 % Please edit documentation in R/variable_selection_mir.R
 \name{calculate.mir.perm}
 \alias{calculate.mir.perm}
-\title{calculate.mir.perm}
+\title{This is an internal function}
 \usage{
-calculate.mir.perm(r = 1, adj.agree.perm, air, variables)
+calculate.mir.perm(r = 1, adj.agree_perm, air, allvariables)
 }
 \description{
 This is an internal function

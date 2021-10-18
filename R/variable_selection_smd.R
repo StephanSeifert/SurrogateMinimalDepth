@@ -18,7 +18,6 @@
 #' @param forest the random forest that should be analyzed if create.forest is set to FALSE. (x and y still have to be given to obtain variable names)
 #' @param save.memory Use memory saving (but slower) splitting mode. No effect for survival and GWAS data. Warning: This option slows down the tree growing, use only if you encounter memory problems. (This parameter is transfered to ranger)
 #' @param case.weights Weights for sampling of training observations. Observations with larger weights will be selected with higher probability in the bootstrap (or subsampled) samples for the trees.
-#' @param MD set TRUE if Minimal Depth instead of Surrogate Minimal Depth should be conducted.
 #'
 #' @return list with the following components:
 #' \itemize{

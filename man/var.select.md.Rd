@@ -16,7 +16,8 @@ var.select.md(
   save.ranger = FALSE,
   create.forest = TRUE,
   forest = NULL,
-  save.memory = FALSE
+  save.memory = FALSE,
+  case.weights = NULL
 )
 }
 \arguments{
