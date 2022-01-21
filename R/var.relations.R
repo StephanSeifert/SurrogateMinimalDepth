@@ -35,7 +35,7 @@
 #' @export
 
 var.relations = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
-                         num.threads = NULL, status = NULL, save.ranger = FALSE, create.forest = FALSE, forest = NULL,
+                         num.threads = NULL, status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL,
                          save.memory = FALSE, case.weights = NULL,
                          variables, candidates, t = 5, select.rel = TRUE, num.threads.rel = NULL) {
 

@@ -96,7 +96,7 @@ var.select.smd = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
     s = ceiling(nvar*0.01)
   }
 
-  if (s > (nvar - 2)) {
+  if (s > (nvar - 1)) {
     s = nvar - 1
     warning("s was set to the maximum number that is reasonable (variables-1) ")
   }

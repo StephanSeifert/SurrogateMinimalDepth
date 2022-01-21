@@ -27,9 +27,7 @@ meanAdjAgree=function(trees,variables,allvariables,candidates,t,s.a,select.var,n
   if (is.null(num.threads)) {
     num.threads = parallel::detectCores()
   }
-  options(warn=2)
-  results.allvar = matrix(unlist(parallel::mclapply(1:length(index.variables),mc.cores = num.threads,maa.p,allvariables,ntree,trees,index.variables,candidates)),ncol=length(candidates),nrow=length(variables),byrow = TRUE)
-  options(warn=0)
+  results.allvar = t(sapply(1:length(index.variables),maa.p,allvariables,ntree,trees,index.variables,candidates,num.threads))
   colnames(results.allvar)=candidates
   rownames(results.allvar)=variables
   if(select.var) {
@@ -50,9 +48,9 @@ meanAdjAgree=function(trees,variables,allvariables,candidates,t,s.a,select.var,n
 #' This is an internal function
 #'
 #' @keywords internal
-maa.p=function(p=1,allvariables,ntree,trees,index.variables,candidates){
+maa.p=function(p=1,allvariables,ntree,trees,index.variables,candidates,num.threads){
   i=index.variables[p]
-  surrMatrix=t(sapply(1:ntree,surr.tree,allvariables,ntree,trees,i))
+  surrMatrix=matrix(unlist(parallel::mclapply(1:ntree,mc.cores = num.threads,surr.tree,allvariables,ntree,trees,i)),ncol=length(allvariables),nrow=ntree,byrow = TRUE)
   colnames(surrMatrix)=allvariables
   means.surr=colMeans(surrMatrix,na.rm=TRUE)
   means.surr[i]=NA
