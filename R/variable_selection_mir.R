@@ -136,7 +136,7 @@ var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
       if (corr.rel) {
         rel = var.relations.corr(x = x, y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
                                  num.threads = num.threads, case.weights = case.weights, variables = allvariables,
-                                 candidates = allvariables, p.t = p.t.rel, method = method.rel,select.rel = select.rel, num.threads = num.threads)
+                                 candidates = allvariables, p.t = p.t.rel, method = method.rel,select.rel = select.rel)
       } else {
         rel = var.relations(x = x, y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
                             num.threads = num.threads, case.weights = case.weights, variables = allvariables,
