@@ -50,7 +50,7 @@ meanAdjAgree=function(trees,variables,allvariables,candidates,t,s.a,select.var,n
 #' @keywords internal
 maa.p=function(p=1,allvariables,ntree,trees,index.variables,candidates,num.threads){
   i=index.variables[p]
-  surrMatrix=matrix(unlist(parallel::mclapply(1:ntree,mc.cores = num.threads,surr.tree,allvariables,ntree,trees,i)),ncol=length(allvariables),nrow=ntree,byrow = TRUE)
+  surrMatrix=matrix(unlist(parallel::mclapply(trees[1:ntree],mc.cores = num.threads,surr.tree,allvariables,ntree,i)),ncol=length(allvariables),nrow=ntree,byrow = TRUE)
   colnames(surrMatrix)=allvariables
   means.surr=colMeans(surrMatrix,na.rm=TRUE)
   means.surr[i]=NA
@@ -78,9 +78,8 @@ surr.var=function(i=1,variables,ntree,trees){
 #' This is an internal function
 #'
 #' @keywords internal
-surr.tree=function(j=1,variables,ntree,trees,i){
+surr.tree=function(tree,variables,ntree,trees,i){
   adjtree=rep(0,length(variables))
-  tree=trees[[j]]
   # there are more than one nonterminal nodes with split variable i
   if (length(which(sapply(tree,"[[",4)==i))>1){
     nodes=tree[which(sapply(tree,"[[",4)==i)]
