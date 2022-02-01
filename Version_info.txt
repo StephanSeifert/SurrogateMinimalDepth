@@ -1,8 +1,7 @@
 Version 0.2.0 - added function var.sel.mir to select important variables based on mutual impurity reduction and to calculate unbiased relations (done)
-              - added multicore calculation of variable relations
-              - expand function inputs for var.relations 
+              - added multicore calculation of variable relations (done) 
+              - expand function inputs for var.relations (done)
               - added function var.relations.corr for generation of corrected relations (done)
-              - included possibility to perform multiblock RF 
               - included possibility to only calculate relations and not select related variables for var.relations function (done)
               - included the possibility to set case weights  (done) 
 
