@@ -7,7 +7,7 @@
 #' @param p.t p.value threshold for selection of related variables. Default is 0.01.
 #' @param select.rel set False if only relations should be calculated and no related variables should be selected.
 #' @param method Method  to  compute  p-values.   Use  "janitza"  for  the  method  by  Janitza  et  al. (2016) or "permutation" to utilize importance values of permuted variables.
-#' @param num.threads.rel number of threads used for determination of relations. Default is number of CPUs available. (this process can be memory-intensive and it can be preferable to reduce this)
+#' @param num.threads number of threads used for determination of relations. Default is number of CPUs available.
 #' @inheritParams var.select.smd
 #'
 #' @return a list containing:
@@ -38,7 +38,7 @@
 var.relations.corr = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
                          num.threads = NULL, status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL,
                          save.memory = FALSE, case.weights = NULL,
-                         variables, candidates, p.t = 0.01, select.rel = TRUE, method = "janitza", num.threads.rel = NULL) {
+                         variables, candidates, p.t = 0.01, select.rel = TRUE, method = "janitza") {
 
   if (create.forest) {
     ## check data
@@ -153,12 +153,12 @@ var.relations.corr = function(x = NULL, y = NULL, ntree = 500, type = "regressio
   # count surrogates
   s = count.surrogates(forest$trees)
   rel = meanAdjAgree(forest$trees, variables = allvariables, allvariables = allvariables, candidates = allvariables,
-                     t = t, s$s.a, select.var = FALSE, num.threads = num.threads.rel)
+                     t = t, s$s.a, select.var = FALSE, num.threads = num.threads)
 
   allvariables_perm = colnames(x_perm)
 
   rel_perm = meanAdjAgree(forest_perm$trees, variables = allvariables_perm , allvariables = allvariables_perm , candidates = allvariables_perm,
-                          t = t, s$s.a, select.var = FALSE, num.threads = num.threads.rel)
+                          t = t, s$s.a, select.var = FALSE, num.threads = num.threads)
 
   } else {
     stop("allvariables do not contain the chosen variables")

@@ -27,9 +27,7 @@ meanAdjAgree=function(trees,variables,allvariables,candidates,t,s.a,select.var,n
   if (is.null(num.threads)) {
     num.threads = parallel::detectCores()
   }
-  options(warn=2)
-  results.allvar = matrix(unlist(parallel::mclapply(1:length(index.variables),mc.cores = num.threads,maa.p,allvariables,ntree,trees,index.variables,candidates)),ncol=length(candidates),nrow=length(variables),byrow = TRUE)
-  options(warn=0)
+  results.allvar = t(sapply(1:length(index.variables),maa.p,allvariables,ntree,trees,index.variables,candidates,num.threads))
   colnames(results.allvar)=candidates
   rownames(results.allvar)=variables
   if(select.var) {
@@ -50,9 +48,9 @@ meanAdjAgree=function(trees,variables,allvariables,candidates,t,s.a,select.var,n
 #' This is an internal function
 #'
 #' @keywords internal
-maa.p=function(p=1,allvariables,ntree,trees,index.variables,candidates){
+maa.p=function(p=1,allvariables,ntree,trees,index.variables,candidates,num.threads){
   i=index.variables[p]
-  surrMatrix=t(sapply(1:ntree,surr.tree,allvariables,ntree,trees,i))
+  surrMatrix=matrix(unlist(parallel::mclapply(trees[1:ntree],mc.cores = num.threads,surr.tree,allvariables,ntree,i)),ncol=length(allvariables),nrow=ntree,byrow = TRUE)
   colnames(surrMatrix)=allvariables
   means.surr=colMeans(surrMatrix,na.rm=TRUE)
   means.surr[i]=NA
@@ -60,6 +58,52 @@ maa.p=function(p=1,allvariables,ntree,trees,index.variables,candidates){
   means.surr.candidate[which(means.surr.candidate == "NaN")] = NA
   return(means.surr.candidate)
 }
+
+
+#' surr.tree
+#'
+#' This is an internal function
+#'
+#' @keywords internal
+surr.tree=function(tree,variables,ntree,i){
+  adjtree=rep(0,length(variables))
+  # there are more than one nonterminal nodes with split variable i
+  if (length(which(sapply(tree,"[[",4)==i))>1){
+    nodes=tree[which(sapply(tree,"[[",4)==i)]
+    s=sapply(nodes,length)
+    s=(s-7)/2
+    surr=lapply(nodes,"[",-c(1:7)) # extract surrogates
+    sum=0
+    for (o in 1:length(s)) {
+      if (s[o]==0) next
+      adjtree.k=rep(0,length(variables))
+      surr.var=surr[[o]][(1:s[o])]
+      surr.adj=surr[[o]][(s[o]+1):(2*s[o])]
+      adjtree.k[surr.var]=surr.adj
+      adjtree=adjtree+adjtree.k
+      sum=sum+1
+    }
+    adjtree=adjtree/sum
+  }
+  #there is one nonterminal node with split variable i
+  if (length(which(sapply(tree,"[[",4)==i))==1){
+    nodes=tree[which(sapply(tree,"[[",4)==i)]
+    surr=sapply(nodes,"[",-c(1:7)) # extract surrogates
+    if ((length(nodes[[1]]))>7){
+      s=(length(surr))/2
+      surr.var=surr[1:s]
+      surr.adj=surr[(s+1):(2*s)]
+      adjtree[surr.var]=surr.adj
+    }
+  }
+  #there is no nonterminal node with split variable i
+  if (length(which(sapply(tree,"[[",4)==i))==0){
+    adjtree=rep(NA,length(variables))
+    surr.mean=NA
+  }
+  return(adjtree=adjtree)
+}
+
 
 
 #' surr.var
@@ -73,51 +117,6 @@ surr.var=function(i=1,variables,ntree,trees){
   colnames(surrMatrix)=variables
   means.surr=colMeans(surrMatrix,na.rm=TRUE)
   return(means.surr)
-}
-
-#' surr.tree
-#'
-#' This is an internal function
-#'
-#' @keywords internal
-surr.tree=function(j=1,variables,ntree,trees,i){
-  adjtree=rep(0,length(variables))
-  tree=trees[[j]]
-  # there are more than one nonterminal nodes with split variable i
-  if (length(which(sapply(tree,"[[",4)==i))>1){
-    nodes=tree[which(sapply(tree,"[[",4)==i)]
-    s=sapply(nodes,length)
-    s=(s-7)/2
-    surr=lapply(nodes,"[",-c(1:7)) # extract surrogates
-    sum=0
-    for (o in 1:length(s)) {
-      if (s[o]==0) next
-      adjtree.k=rep(0,length(variables))
-      surr.var=surr[[o]][(1:s[o])]
-      surr.adj=surr[[o]][(s[o]+1):(2*s[o])]
-        adjtree.k[surr.var]=surr.adj
-        adjtree=adjtree+adjtree.k
-        sum=sum+1
-      }
-      adjtree=adjtree/sum
-  }
-  #there is one nonterminal node with split variable i
-  if (length(which(sapply(tree,"[[",4)==i))==1){
-    nodes=tree[which(sapply(tree,"[[",4)==i)]
-    surr=sapply(nodes,"[",-c(1:7)) # extract surrogates
-      if ((length(nodes[[1]]))>7){
-        s=(length(surr))/2
-        surr.var=surr[1:s]
-        surr.adj=surr[(s+1):(2*s)]
-        adjtree[surr.var]=surr.adj
-      }
-    }
-  #there is no nonterminal node with split variable i
-  if (length(which(sapply(tree,"[[",4)==i))==0){
-    adjtree=rep(NA,length(variables))
-    surr.mean=NA
-  }
-  return(adjtree=adjtree)
 }
 
 #' adj.mean

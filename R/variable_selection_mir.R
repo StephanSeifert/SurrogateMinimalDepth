@@ -11,7 +11,6 @@
 #' @param type mode of prediction ("regression" or "classification"). Default is regression.
 #' @param min.node.size minimal node size. Default is 1.
 #' @param num.threads number of threads used for parallel execution. Default is number of CPUs available.
-#' @param num.threads.rel number of threads used for determination of relations. Default is number of CPUs available. (this process can be memory-intensive and it can be preferable to reduce this)
 #' @param s predefined number of surrogate splits (it may happen that the actual number of surrogate splits differs in individual nodes). Default is 1 \% of no. of variables.
 #' @param p.t.sel p.value threshold for selection of important variables. Default is 0.01.
 #' @param p.t.rel p.value threshold for selection of related variables. Default is 0.01.
@@ -63,8 +62,7 @@
 var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
                           num.threads = NULL, status = NULL, save.ranger = FALSE,
                           save.memory = FALSE, min.var.p = 200, p.t.sel = 0.01, p.t.rel = 0.01, select.var = TRUE, select.rel = FALSE,
-                          case.weights = NULL, corr.rel = TRUE, t = 5, method.rel = "janitza", method.sel = "janitza",
-                          num.threads.rel = NULL) {
+                          case.weights = NULL, corr.rel = TRUE, t = 5, method.rel = "janitza", method.sel = "janitza") {
 
     ## check data
     if (length(y) != nrow(x)) {
@@ -138,11 +136,11 @@ var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
       if (corr.rel) {
         rel = var.relations.corr(x = x, y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
                                  num.threads = num.threads, case.weights = case.weights, variables = allvariables,
-                                 candidates = allvariables, p.t = p.t.rel, method = method.rel,select.rel = select.rel, num.threads.rel = num.threads.rel)
+                                 candidates = allvariables, p.t = p.t.rel, method = method.rel,select.rel = select.rel)
       } else {
         rel = var.relations(x = x, y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
                             num.threads = num.threads, case.weights = case.weights, variables = allvariables,
-                            candidates = allvariables, t = t,select.rel = select.rel, num.threads.rel = num.threads.rel)
+                            candidates = allvariables, t = t,select.rel = select.rel, num.threads = num.threads)
       }
 
     }

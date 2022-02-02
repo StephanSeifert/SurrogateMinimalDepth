@@ -9,7 +9,7 @@
 #' @param candidates vector of variable names (strings) that are candidates to be related to the variables (has to be contained in allvariables)
 #' @param t variable to calculate threshold. Default is 5.
 #' @param select.rel set False if only relations should be calculated and no related variables should be selected.
-#' @param num.threads.rel number of threads used for determination of relations. Default is number of CPUs available. (this process can be memory-intensive and it can be preferable to reduce this)
+#' @param num.threads number of threads used for determination of relations. Default is number of CPUs available.
 #' @inheritParams var.select.smd
 #'
 #' @return a list containing:
@@ -35,9 +35,9 @@
 #' @export
 
 var.relations = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
-                         num.threads = NULL, status = NULL, save.ranger = FALSE, create.forest = FALSE, forest = NULL,
+                         num.threads = NULL, status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL,
                          save.memory = FALSE, case.weights = NULL,
-                         variables, candidates, t = 5, select.rel = TRUE, num.threads.rel = NULL) {
+                         variables, candidates, t = 5, select.rel = TRUE) {
 
   if (create.forest) {
     ## check data
@@ -124,7 +124,7 @@ var.relations = function(x = NULL, y = NULL, ntree = 500, type = "regression", s
   if (all(variables %in% allvariables)) {
   # count surrogates
   s = count.surrogates(trees)
-  results.meanAdjAgree = meanAdjAgree(trees, variables, allvariables, candidates, t = t, s$s.a, select.var = select.rel,num.threads = num.threads.rel)
+  results.meanAdjAgree = meanAdjAgree(trees, variables, allvariables, candidates, t = t, s$s.a, select.var = select.rel,num.threads = num.threads)
   } else {
     stop("allvariables do not contain the chosen variables")
   }
