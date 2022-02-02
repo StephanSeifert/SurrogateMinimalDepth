@@ -27,7 +27,8 @@
 #include <unistd.h>	//for using the function sleep
 #endif
 
-SEXP getSurrogates(SEXP wt, SEXP xmat, SEXP opt, SEXP node) {
+SEXP getSurrogates(SEXP wt, SEXP testpar, SEXP xmat, SEXP opt, SEXP node) {
+
 #ifdef DEBUG
 	Rprintf("debug\n");
 #endif
