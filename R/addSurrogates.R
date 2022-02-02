@@ -25,7 +25,6 @@
 
 addSurrogates = function(RF,trees,s,Xdata,num.threads) {
 
-  print("TEST")
   ntree = length(trees)
   #variables to find surrogates (control file similar as in rpart)
   controls = list(maxsurrogate = as.integer(s), sur_agree = 0, nthreads = num.threads)

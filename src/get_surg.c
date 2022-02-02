@@ -28,7 +28,6 @@
 #endif
 
 SEXP getSurrogates(SEXP wt, SEXP xmat, SEXP opt, SEXP node) {
-	printf("Hello World from C!\n");
 #ifdef DEBUG
 	Rprintf("debug\n");
 #endif
