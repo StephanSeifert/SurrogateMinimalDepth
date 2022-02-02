@@ -60,25 +60,12 @@ maa.p=function(p=1,allvariables,ntree,trees,index.variables,candidates,num.threa
 }
 
 
-#' surr.var
-#'
-#' This is an internal function
-#'
-#' @keywords internal
-surr.var=function(i=1,variables,ntree,trees){
-
-  surrMatrix=t(sapply(1:ntree,surr.tree,variables,ntree,trees,i))
-  colnames(surrMatrix)=variables
-  means.surr=colMeans(surrMatrix,na.rm=TRUE)
-  return(means.surr)
-}
-
 #' surr.tree
 #'
 #' This is an internal function
 #'
 #' @keywords internal
-surr.tree=function(tree,variables,ntree,trees,i){
+surr.tree=function(tree,variables,ntree,i){
   adjtree=rep(0,length(variables))
   # there are more than one nonterminal nodes with split variable i
   if (length(which(sapply(tree,"[[",4)==i))>1){
@@ -92,29 +79,44 @@ surr.tree=function(tree,variables,ntree,trees,i){
       adjtree.k=rep(0,length(variables))
       surr.var=surr[[o]][(1:s[o])]
       surr.adj=surr[[o]][(s[o]+1):(2*s[o])]
-        adjtree.k[surr.var]=surr.adj
-        adjtree=adjtree+adjtree.k
-        sum=sum+1
-      }
-      adjtree=adjtree/sum
+      adjtree.k[surr.var]=surr.adj
+      adjtree=adjtree+adjtree.k
+      sum=sum+1
+    }
+    adjtree=adjtree/sum
   }
   #there is one nonterminal node with split variable i
   if (length(which(sapply(tree,"[[",4)==i))==1){
     nodes=tree[which(sapply(tree,"[[",4)==i)]
     surr=sapply(nodes,"[",-c(1:7)) # extract surrogates
-      if ((length(nodes[[1]]))>7){
-        s=(length(surr))/2
-        surr.var=surr[1:s]
-        surr.adj=surr[(s+1):(2*s)]
-        adjtree[surr.var]=surr.adj
-      }
+    if ((length(nodes[[1]]))>7){
+      s=(length(surr))/2
+      surr.var=surr[1:s]
+      surr.adj=surr[(s+1):(2*s)]
+      adjtree[surr.var]=surr.adj
     }
+  }
   #there is no nonterminal node with split variable i
   if (length(which(sapply(tree,"[[",4)==i))==0){
     adjtree=rep(NA,length(variables))
     surr.mean=NA
   }
   return(adjtree=adjtree)
+}
+
+
+
+#' surr.var
+#'
+#' This is an internal function
+#'
+#' @keywords internal
+surr.var=function(i=1,variables,ntree,trees){
+
+  surrMatrix=t(sapply(1:ntree,surr.tree,variables,ntree,trees,i))
+  colnames(surrMatrix)=variables
+  means.surr=colMeans(surrMatrix,na.rm=TRUE)
+  return(means.surr)
 }
 
 #' adj.mean
