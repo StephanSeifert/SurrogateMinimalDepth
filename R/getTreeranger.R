@@ -20,7 +20,6 @@
 getTreeranger=function(RF,ntree) {
   trees=lapply(1:ntree,getsingletree,RF=RF)
 
-  colnames(ktree)=c("nodeID","leftdaughter","rightdaughter","splitvariable","splitpoint","status")
   return(trees)
 }
 
