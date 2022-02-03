@@ -25,7 +25,7 @@ addLayer=function(trees){
     layer[1]=0
     t=1
     while (anyNA(layer)){
-      r=as.numeric(tree[which(layer==(t-1)),2:3])
+      r=unlist(tree[which(layer==(t-1)),2:3])
       layer[r]=t
       t=t+1
     }

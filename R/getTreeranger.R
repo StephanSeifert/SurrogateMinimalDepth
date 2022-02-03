@@ -10,36 +10,41 @@
 #' \item leftdaughter: ID of the left daughter of this node
 #' \item rightdaughter: ID of the right daughter of this node
 #' \item splitvariable: ID of the split variable
-#' \item splitpoint: splitpoint of the split variable
+#' \item splitpoint: splitpoint of the split variable (for categorical variables this is a comma separated lists of values, representing the factor levels (in the original order) going to the right)
 #' \item status: "0" for terminal and "1" for non-terminal
 #' }
 #' @export
 
 
+
 getTreeranger=function(RF,ntree) {
-trees=lapply(1:ntree,getTreeranger_k,RF=RF)
-return(trees)
+  trees=lapply(1:ntree,getsingletree,RF=RF)
+
+  colnames(ktree)=c("nodeID","leftdaughter","rightdaughter","splitvariable","splitpoint","status")
+  return(trees)
 }
 
-#' getTreeranger_k
+
+#' getsingletree
 #'
 #' This is an internal function
 #'
 #' @keywords internal
-getTreeranger_k=function(RF,k=1){
-  trees=RF$forest
-  split.ids=trees$split.varIDs[[k]] + 1
-  status=rep(1,length(split.ids))
-  child.nodes.left=trees$child.nodeIDs[[k]][[1]]+1
-  terminal=which(child.nodes.left == 1)
-  child.nodes.left[terminal]=0
-  child.nodes.right=trees$child.nodeIDs[[k]][[2]]+1
-  child.nodes.right[terminal]=0
-  status[terminal]=0
-  split.values=as.matrix(trees$split.values[[k]])
-  id=c(1:length(split.ids))
-  ktree=cbind(id,child.nodes.left,child.nodes.right,split.ids,split.values,status)
+getsingletree=function(RF,k=1){
+  # here we use the treeInfo function of the ranger package to create extract the trees, in an earlier version this was done with a self implemented function
+  tree.ranger = ranger::treeInfo(RF,tree = k)
+  ktree=data.frame(as.numeric(tree.ranger$nodeID+1),
+              as.numeric(tree.ranger$leftChild+1),
+              as.numeric(tree.ranger$rightChild+1),
+              as.numeric(tree.ranger$splitvarID+1),
+              tree.ranger$splitval,
+              tree.ranger$terminal)
+  ktree[,5] = as.character(levels(ktree[,5] ))[ktree[,5]]
+  ktree[,6] = as.numeric(ktree[,6] == FALSE)
 
+ for (i in 2:4) {
+   ktree[,i][is.na(ktree[,i])] = 0
+ }
   colnames(ktree)=c("nodeID","leftdaughter","rightdaughter","splitvariable","splitpoint","status")
   return(ktree)
 }

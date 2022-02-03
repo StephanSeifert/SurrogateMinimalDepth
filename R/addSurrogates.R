@@ -26,13 +26,17 @@
 addSurrogates = function(RF,trees,s,Xdata,num.threads) {
 
   ntree = length(trees)
+  ncat = sapply(sapply(Xdata,levels),length)     # determine number of categories (o for continuous variables)
+  names(ncat) = colnames(Xdata)
+
   #variables to find surrogates (control file similar as in rpart)
   controls = list(maxsurrogate = as.integer(s), sur_agree = 0, nthreads = num.threads)
 
   trees.surr = lapply(1:ntree, getSurrogate, maxsurr = s, surr.par = list(inbag.counts = RF$inbag.counts,
                                                                 Xdata = Xdata,
                                                                 controls = controls,
-                                                                trees = trees))
+                                                                trees = trees,
+                                                                ncat = ncat))
   return(trees.surr)
 }
 
@@ -47,7 +51,13 @@ getSurrogate = function(surr.par, k = 1, maxsurr) {
  column.names = colnames(tree)
  n.nodes = nrow(tree)
  wt = surr.par$inbag.counts[[k]]
- tree.surr = lapply(1:n.nodes,SurrTree,wt = wt,Xdata = surr.par$Xdata,controls = surr.par$controls, column.names, tree,maxsurr)
+ tree.surr = lapply(1:n.nodes,
+                    SurrTree,
+                    wt = wt,
+                    Xdata = surr.par$Xdata,
+                    controls = surr.par$controls,
+                    column.names, tree,maxsurr,
+                    ncat = surr.par$ncat)
 }
 
 #' SurrTree
@@ -55,17 +65,30 @@ getSurrogate = function(surr.par, k = 1, maxsurr) {
 #' This is an internal function
 #'
 #' @keywords internal
-SurrTree = function(j,wt,Xdata,controls,column.names,tree,maxsurr) {
+SurrTree = function(j,wt,Xdata,controls,column.names,tree,maxsurr,ncat) {
   node = tree[j,]
   # for non-terminal nodes get surrogates
   if (node["status"] == 1) {
-  pnode = node[4:5]
   #Handover to C
+  var = as.numeric(node[4]) # extract split variable
+
+  if (ncat[var] == 0) { # extract split information: split point for continuous variables and directions for qualitative variables
+    split = as.numeric(node[5])
+  } else {
+    right = as.numeric(strsplit(as.character(node[5]), ",")[[1]])
+    directions = rep(-1,ncat[var])
+    directions[right] = 1
+    split = c(ncat[var],directions)
+  }
+
+
   surrogate.parameters = .Call(C_getSurrogates,
                               wt = as.numeric(wt),
                               X = as.matrix(Xdata),
                               controls = as.integer(unlist(controls)),
-                              as.numeric(pnode))
+                              var,                      # node variables
+                              split,                    # split info
+                              ncat = as.numeric(ncat))
   if (nrow(surrogate.parameters$isplit) > 1) {
     surrogates = surrogate.parameters$isplit[2:nrow(surrogate.parameters$isplit),1]
     surr.adj = surrogate.parameters$dsplit[2:nrow(surrogate.parameters$dsplit),3]
