@@ -6,7 +6,7 @@
 #include "node.h"
 #include "rpartproto.h"
 
-void rpmatrix(pNode me, double **dsplit, int **isplit,  int *nsplit) {
+void rpmatrix(pNode me, int *numcat, double **dsplit, int **isplit,  int *nsplit) {
 
 	// dsplit  0: improvement
 	//         1: split point for continuous
@@ -17,50 +17,48 @@ void rpmatrix(pNode me, double **dsplit, int **isplit,  int *nsplit) {
 
 
 	int scnt;
+	int j;
 	pSplit spl;
 
 	scnt = 0;
 
-#ifdef OPENMP_ON
-	#pragma omp sections private(scnt,spl)
-// start parallel section
-	{
-		#pragma omp section
-		{
-#endif
+
 			spl = me->primary;
 			for (scnt = 0; scnt < nsplit[0]; scnt++) {
-				dsplit[0][scnt] = spl->improve;
-				dsplit[1][scnt] = spl->spoint;
+				j = spl->var_num;
+				
+				if (numcat[j] == 0)
+				{
+					dsplit[0][scnt] = spl->spoint;
+					isplit[1][scnt] = -1;
+				} else
+				{
+					isplit[1][scnt] = numcat[j];
+				}
 
 				isplit[0][scnt] = spl->var_num + 1;
-				isplit[1][scnt] = spl->count;
-				isplit[2][scnt] = spl->csplit;
+				
 
 				spl = spl->nextsplit;
 			}
-#ifdef OPENMP_ON
-		}
-		#pragma omp section
-		{
-#endif
+
 			spl = me->surrogate;
 			int splitcnt = nsplit[0] + nsplit[1];
 			for (scnt = nsplit[0]; scnt < splitcnt; scnt++) {
-				dsplit[0][scnt] = spl->improve;
-				dsplit[1][scnt] = spl->spoint;
-				dsplit[2][scnt] = spl->adj;
+				j = spl->var_num;
+				
+				dsplit[0][scnt] = spl->adj;
+				if (numcat[j] == 0) {
+					dsplit[1][scnt] = spl->spoint;
+					isplit[1][scnt] = -1;
+				} else {
+					isplit[1][scnt] = numcat[j];
+				}
+				isplit[0][scnt] = j + 1;
+				
 
-
-				isplit[0][scnt] = spl->var_num + 1;
-				isplit[1][scnt] = spl->count;
-				isplit[2][scnt] = spl->csplit;
 
 				spl = spl->nextsplit;
 			}
-#ifdef OPENMP_ON
-		}
-	}
-// end parallel section
-#endif
+
 }

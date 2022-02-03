@@ -87,13 +87,17 @@ EXTERN struct {
 	int sur_agree;
 	// to be allocated by the mainline, of length n
 	int csplit;
+	int *csplit_for_cat;
+	double *lwt;
+	double *rwt;
 	int *left;
 	int *right;
 	int nthreads;
+	int *numcat;
 } rp;
 
 EXTERN int nodesize;
 
 
-// Categorical variables must be coded as 1,2,3, ..., and there may be
+// Categorical variables must be coded as 1,2,3, ...., and there may be
 // missing categories. The upper limit is determined on the fly.

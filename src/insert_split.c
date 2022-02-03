@@ -11,15 +11,20 @@
 #include "node.h"
 #include "rpartproto.h"
 
-pSplit insert_split(pSplit *listhead, double improve, int max) {
+pSplit insert_split(pSplit *listhead, int ncat, double improve, int max) {
 	int nlist;
 	pSplit s1, s2, s3 = NULL, s4;
+
+	if (ncat == 0) {
+		ncat = 1;
+	}
+	int splitsize = sizeof(Split) + (ncat - 20) * sizeof(int);
 
 	// The Split structure is sized for 2 categories.
 	if (*listhead == 0) {
 		// first call to a new list
 		// csplit gets used even for continuous splits.
-		s3 = (pSplit) calloc(1, sizeof(Split));
+		s3 = (pSplit) CALLOC(1, splitsize);
 		s3->nextsplit = NULL;
 		*listhead = s3;
 		return s3;
@@ -29,6 +34,12 @@ pSplit insert_split(pSplit *listhead, double improve, int max) {
 		s3 = *listhead;
 		if (improve <= s3->improve)
 			return NULL;
+		if (ncat > 1) {
+			Free(s3);
+			s3 = (pSplit) CALLOC(1, splitsize);
+			s3->nextsplit = NULL;
+			*listhead = s3;
+		}
 		return s3;
 	}
 	// set up --- nlist = length of list, s4=last element, s3=next to last
@@ -49,6 +60,10 @@ pSplit insert_split(pSplit *listhead, double improve, int max) {
 		if (s2 == 0)
 			// not good enough
 			return NULL;
+		if (ncat > 1) {
+			Free(s4);
+			s4 = (pSplit) CALLOC(1, splitsize);
+		}
 
 		// redefine element s4 as new element
 		if (s1 == s3) {
@@ -61,7 +76,7 @@ pSplit insert_split(pSplit *listhead, double improve, int max) {
 	} else {
 		// reuse pointer s4 for new element
 		// csplit gets used even for continuous splits.
-		s4 = (pSplit) calloc(1, sizeof(Split));
+		s4 = (pSplit) CALLOC(1, splitsize);
 		s4->nextsplit = s2;
 	}
 	if (s2 == *listhead)

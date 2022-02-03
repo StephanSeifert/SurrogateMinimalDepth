@@ -13,13 +13,22 @@
 #include "get_surg.h"
 #include "rpartproto.h"
 
-void choose_surg(int n1, int n2, int *y, double *x, int *order, double *agreement, double *split, int *csplit, double tleft, double tright, double *adj) {
+void choose_surg(int n1, int n2, int *y, double *x, int *order, int ncat, double *agreement, double *split, int *csplit_for_cat, double tleft, double tright, double *adj) {
+	//printf("01: Hello from choose_surg()!\n");
+	//printf("i: %d\n", i);
+
 	/* sum of weights for each */
 	double llwt, lrwt, rrwt, rlwt;
 	double agree, majority, total_wt;
+
+	int *left = rp.left;
+	int *right = rp.right;
+	double *lwt = rp.lwt;
+	double *rwt = rp.rwt;
+
+
 	/* set to 1 when something worthwhile is found */
 	int success = 0;
-
 	/*
 	 * I enforce that at least 2 obs must go each way, to avoid having an
 	 *  uncorrelated surrogate beat the "null" surrogate too easily
@@ -35,18 +44,23 @@ void choose_surg(int n1, int n2, int *y, double *x, int *order, double *agreemen
 	 * The agreement is max(ll+rr, lr+rl), if weights were = 1;
 	 *   actually max(llwt + rrwt, lrwt + rlwt) / denominator
 	 */
+	if (ncat == 0) {
+		//printf("Hello from choose_surg() ncat == 0\n");
+
 	double lastx = 0.0;
 	int ll, lr, rr, rl;
 	ll = rl = 0;
 	llwt = 0;
 	rlwt = 0;
-
+	// printf("n2: %d\n", n2); -> 100
+	// printf("n1: %d\n", n1); -> 0
 	for (int i = n2 - 1; i >= n1; i--) {
 		/* start with me sending all to the left */
 		int j = order[i];
 		if (j >= 0) {
 			/* this is why I run the loop backwards */
 			lastx = x[j];
+			//printf("03:		lastx: %f\n", lastx);
 			switch (y[j]) {
 			case LEFT:
 				if (rp.wt[j] > 0)
@@ -64,6 +78,9 @@ void choose_surg(int n1, int n2, int *y, double *x, int *order, double *agreemen
 		}
 	}
 
+	// printf("ll: %d\n", ll); -> 13
+	// printf("rl: %d\n", rl); -> 87
+
 	if (llwt > rlwt)
 		agree = llwt;
 	else
@@ -76,18 +93,11 @@ void choose_surg(int n1, int n2, int *y, double *x, int *order, double *agreemen
 	 *    preference), or only the y's for non-missing x (CART book)?
 	 *    If the former, need to reset some totals.
 	 */
-	if (rp.sur_agree == 0) {
-		/* use total table */
-		total_wt = tleft + tright;
-		if (tleft > tright)
-			majority = tleft;
-		else
-			majority = tright;
-	} else {
+	
 		/* worst possible agreement */
 		majority = agree;
 		total_wt = llwt + rlwt;
-	}
+	
 
 	lr = rr = 0;
 	lrwt = 0;
@@ -98,11 +108,14 @@ void choose_surg(int n1, int n2, int *y, double *x, int *order, double *agreemen
 	 *    (The loop above sets it to the first unique x value).
 	 */
 	/* NB: might never set csplit or split */
-	*csplit = LEFT;
+	//*csplit = LEFT;
+	csplit_for_cat[0] = LEFT; 
 	/* a valid splitting value */
 	*split = lastx;
 	for (int i = n1; (ll + rl) >= 2; i++) {
 		int j = order[i];
+		//length_of_order_i = length_of_order_i + 1;
+		//printf("order[i]: %d\n", order[i]);
 		if (j >= 0) {
 			/* not a missing value */
 			if ((lr + rr) >= 2 && x[j] != lastx) {
@@ -111,12 +124,14 @@ void choose_surg(int n1, int n2, int *y, double *x, int *order, double *agreemen
 					success = 1;
 					agree = llwt + rrwt;
 					/* < goes to the right */
-					*csplit = RIGHT;
+					//*csplit = RIGHT;
+					csplit_for_cat[0] = RIGHT;
 					*split = (x[j] + lastx) / 2;
 				} else if ((lrwt + rlwt) > agree) {
 					success = 1;
 					agree = lrwt + rlwt;
-					*csplit = LEFT;
+					//*csplit = LEFT;
+					csplit_for_cat[0] = LEFT;
 					*split = (x[j] + lastx) / 2;
 				}
 			}
@@ -146,6 +161,105 @@ void choose_surg(int n1, int n2, int *y, double *x, int *order, double *agreemen
 			lastx = x[j];
 		}
 	}
+	} else {
+		
+		int defdir;
+		int lcount = 0;
+		int rcount = 0;
+		for (int i = 0; i < ncat; i++) {
+			left[i] = 0;
+			right[i] = 0;
+			lwt[i] = 0;
+			rwt[i] = 0;
+		}
+
+		/* First step:
+	 *  left = table(x[y goes left]), right= table(x[y goes right])
+	 *  so left[2] will be the number of x == 2's that went left,
+	 *  and lwt[2] the sum of the weights for those observations.
+	 * Only those with weight > 0 count in the totals
+	 */
+	for (int i = n1; i < n2; i++) {
+	    int j = order[i];
+	    if (j >= 0) {
+		int k = (int) x[j] - 1;
+		
+		
+		switch (y[j]) {
+		case LEFT:
+		    if (rp.wt[j] > 0)
+			left[k]++;
+			
+		    lwt[k] += rp.wt[j];
+		    break;
+		case RIGHT:
+		    if (rp.wt[j] > 0)
+			right[k]++;
+		    rwt[k] += rp.wt[j];
+		    break;
+		default:;
+		}
+	    }
+	}
+	
+
+	
+
+	
+	
+	
+
+	  /*
+	*  Compute which is better: everyone to the right or left
+	*/
+	llwt = 0;
+	rrwt = 0;
+	for (int i = 0; i < ncat; i++) {
+	    llwt += lwt[i];
+	    rrwt += rwt[i];
+	}
+	if (llwt > rrwt) {
+	    defdir = LEFT;
+	    majority = llwt;
+	} else {
+	    defdir = RIGHT;
+	    majority = rrwt;
+	}
+	total_wt = llwt + rrwt;
+
+	/*
+	 * We can calculate the best split category by category--- send each
+	 *  x value individually to its better direction
+	 */
+	agree = 0.0;
+	for (int i = 0; i < ncat; i++) {
+	    if (left[i] == 0 && right[i] == 0)
+		csplit_for_cat[i] = 0;
+	    else {
+		if (lwt[i] < rwt[i] || (lwt[i] == rwt[i] && defdir == RIGHT)) {
+		    agree += rwt[i];
+		    csplit_for_cat[i] = RIGHT;
+		    lcount += left[i];
+		    rcount += right[i];
+		} else {
+		    agree += lwt[i];
+		    csplit_for_cat[i] = LEFT;
+		    lcount += right[i];
+		    rcount += left[i];
+		}
+	    }
+	}
+	
+
+
+	//success = lcount > 1 && rcount > 1; /* sends at least 2 each way */
+	success = lcount > 1 || rcount > 1;
+	
+
+
+	}
+	
+
 
 	/*
 	 * success = 0 means no split was found that had at least 2 sent each
@@ -161,7 +275,24 @@ void choose_surg(int n1, int n2, int *y, double *x, int *order, double *agreemen
 		return;
 	}
 
+
+	/*
+     *  Now we have the total agreement.  Calculate the %agreement and
+     *    the adjusted agreement
+     *  For both, do I use the total y vector as my denominator (my
+     *    preference), or only the y's for non-missing x (CART book)?
+     *    If the former, need to reset some totals.
+     */
+    if (rp.sur_agree == 0) {    /* use total table */
+	total_wt = tleft + tright;
+	if (tleft > tright)
+	    majority = tleft;
+	else
+	    majority = tright;
+    }
+
 	*agreement = agree / total_wt;
 	majority /= total_wt;
 	*adj = (*agreement - majority) / (1. - majority);
+	
 }
