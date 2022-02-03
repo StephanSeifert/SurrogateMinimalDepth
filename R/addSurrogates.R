@@ -30,7 +30,7 @@ addSurrogates = function(RF,trees,s,Xdata,num.threads) {
   names(ncat) = colnames(Xdata)
 
   #variables to find surrogates (control file similar as in rpart)
-  controls = list(maxsurrogate = as.integer(s), sur_agree = 0, nthreads = num.threads)
+  controls = list(maxsurrogate = as.integer(s), sur_agree = 0)
 
   trees.surr = lapply(1:ntree, getSurrogate, maxsurr = s, surr.par = list(inbag.counts = RF$inbag.counts,
                                                                 Xdata = Xdata,
@@ -89,9 +89,10 @@ SurrTree = function(j,wt,Xdata,controls,column.names,tree,maxsurr,ncat) {
                               var,                      # node variables
                               split,                    # split info
                               ncat = as.numeric(ncat))
+
   if (nrow(surrogate.parameters$isplit) > 1) {
     surrogates = surrogate.parameters$isplit[2:nrow(surrogate.parameters$isplit),1]
-    surr.adj = surrogate.parameters$dsplit[2:nrow(surrogate.parameters$dsplit),3]
+    surr.adj = surrogate.parameters$dsplit[2:nrow(surrogate.parameters$dsplit),1]
     node.new = c(node,surrogates,surr.adj)
     surrogate.names = NULL
     adj.names = NULL
