@@ -20,7 +20,6 @@
 getTreeranger=function(RF,ntree) {
   trees=lapply(1:ntree,getsingletree,RF=RF)
 
-  colnames(ktree)=c("nodeID","leftdaughter","rightdaughter","splitvariable","splitpoint","status")
   return(trees)
 }
 
@@ -39,7 +38,9 @@ getsingletree=function(RF,k=1){
               as.numeric(tree.ranger$splitvarID+1),
               tree.ranger$splitval,
               tree.ranger$terminal)
+  if (is.factor(ktree[,5])) {
   ktree[,5] = as.character(levels(ktree[,5] ))[ktree[,5]]
+  }
   ktree[,6] = as.numeric(ktree[,6] == FALSE)
 
  for (i in 2:4) {

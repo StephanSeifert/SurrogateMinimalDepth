@@ -29,7 +29,7 @@
 
 SEXP getSurrogates(SEXP wt, SEXP xmat, SEXP opt, SEXP var, SEXP split, SEXP ncat2) {
 
-	
+
 
 	double *dptr;
 	int *iptr;
