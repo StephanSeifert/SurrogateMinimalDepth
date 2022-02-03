@@ -19,7 +19,7 @@ typedef struct split {
 	int var_num;
 	int count;
 	// the actual length depends on splitting rule
-	int csplit;
+	int csplit[20];
 } Split, *pSplit;
 
 typedef struct node {

@@ -33,6 +33,7 @@ void surrogate(pNode me, int n1, int n2) {
 	int **sorts;
 	double **xdata;
 	double adj_agree;
+	int ncat;
 
 	// DMA 
 	tempy = (int *) calloc(rp.n, sizeof(int));
@@ -45,24 +46,45 @@ void surrogate(pNode me, int n1, int n2) {
 	// last surrogate (or to the right, if larger).
 
 	var = (me->primary)->var_num;
+
+	// LCJ
 	// continuous variable
-	split = (me->primary)->spoint;
-	extra = (me->primary)->csplit;
+	if (rp.numcat[var] == 0)
+	{
+		split = (me->primary)->spoint;
+		extra = (me->primary)->csplit[0];
+		for (i = n1; i < n2; i++)
+		{
+			j = sorts[var][i];
+			if (j < 0)
+			{
+				tempy[-(j + 1)] = 0;
+			} else
+			{
+				tempy[j] = (xdata[var][j] < split) ? extra : -extra;
+			}
+		}
+	} else
+	{ /* categorial variable */
+	index = (me->primary)->csplit;
+	
 	for (i = n1; i < n2; i++) {
 		j = sorts[var][i];
-		if (j < 0)
-			tempy[-(j + 1)] = 0;
-		else
-			tempy[j] = (xdata[var][j] < split) ? extra : -extra;
+	    if (j < 0) {
+		tempy[-(j + 1)] = 0;
+		}
+	    else {
+		tempy[j] = index[(int) xdata[var][j] - 1];
+		}
+	
+	}
+	
 	}
 
-	// count the total number sent left and right
+
 	lcount = 0;
 	rcount = 0;
-#ifdef OPENMP_ON
-	#pragma omp parallel for private(i,j) schedule(dynamic) reduction(+:lcount,rcount) //TODO num_threads(rp.nthreads)
-	// start parallel section
-#endif
+
 	for (i = n1; i < n2; i++) {
 		j = sorts[var][i];
 		//if (j < 0)
@@ -93,71 +115,41 @@ void surrogate(pNode me, int n1, int n2) {
 
 	// Now walk through the variables
 	me->surrogate = (pSplit) NULL;
-	int splitLR = rp.csplit;
+	//int splitLR = rp.csplit;
 	int nthreads;
-#ifdef OPENMP_ON
-	#pragma omp parallel private(i,adj_agree,improve,split,splitLR,ss) num_threads(rp.nthreads)
-	{
-		// start parallel section
-		#pragma omp single
-		{
-			nthreads = omp_get_num_threads();
-			// DMA 
-			ss_list = (pSplit*) calloc(nthreads, sizeof(pSplit));
 
-		}
-		#pragma omp for schedule(dynamic)
-#endif
 		for (i = 0; i < rp.nvar; i++) {
 			if (var == i)
 				continue;
+			ncat = rp.numcat[i];
 
-			choose_surg(n1, n2, tempy, xdata[i], sorts[i], &improve, &split, &splitLR, lcount, rcount, &adj_agree);
+			choose_surg(n1, n2, tempy, xdata[i], sorts[i], ncat, &improve, &split, rp.csplit_for_cat, lcount, rcount, &adj_agree);
 
 			// org comment: was 0
 			if (adj_agree <= 1e-10)
 				// no better than default
 				continue;
+			
 
 			// sort it onto the list of surrogates
-#ifdef  OPENMP_ON
-			ss = insert_split(&(ss_list[omp_get_thread_num()]), improve, rp.maxsur);
-#else
-			ss = insert_split(&(me->surrogate), improve, rp.maxsur);
-#endif
+
+			ss = insert_split(&(me->surrogate), ncat, improve, rp.maxsur);
 			if (ss) {
 				ss->improve = improve;
 				ss->var_num = i;
 				// corrected by nodesplit()
 				ss->count = 0;
 				ss->adj = adj_agree;
-				ss->spoint = split;
-				ss->csplit = splitLR;
+				if ( rp.numcat[i] == 0) {
+					ss->spoint = split;
+					ss->csplit[0] = rp.csplit_for_cat[0];
+				} else {
+					for (k = 0; k < rp.numcat[i]; k++) {
+						ss->csplit[k] = rp.csplit_for_cat[k];
+					}
+				}
+				
 			}
 
 		}
-#ifdef OPENMP_ON
-	}
-// end parallel section
-	for (i = 0; i < nthreads; ++i) {
-		if (ss_list[i] != NULL)
-			for (pSplit lh = ss_list[i]; lh->nextsplit; lh = lh->nextsplit) {
-				ss = insert_split(&(me->surrogate), lh->improve, rp.maxsur);
-				if (ss) {
-					ss->improve = lh->improve;
-					ss->var_num = lh->var_num;
-					// corrected by nodesplit()
-					ss->count = lh->count;
-					ss->adj = lh->adj;
-					ss->spoint = lh->spoint;
-					ss->csplit = lh->csplit;
-				}
-			}
-	}
-	// clear DMA
-	for (i = 0; i < nthreads; ++i)
-		free_split(ss_list[i]);
-	free(ss_list);
-	free(tempy);
-#endif
 }

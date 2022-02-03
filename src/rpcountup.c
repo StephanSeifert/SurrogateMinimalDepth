@@ -13,25 +13,15 @@ void rpcountup(pNode me, int *nsplit) {
 
 	i = 0;
 	j = 0;
-#ifdef OPENMP_ON
-	#pragma omp sections private (ss)
-// start parallel section
-	{
-		#pragma omp section
-#endif
+
 		for (ss = me->primary; ss; ss = ss->nextsplit) {
 			i++;
 		}
-#ifdef OPENMP_ON
-		#pragma omp section
-#endif
+
 		for (ss = me->surrogate; ss; ss = ss->nextsplit) {
 			j++;
 		}
-#ifdef OPENMP_ON
-	}
-// end parallel section
-#endif
+
 	nsplit[0] = i;
 	nsplit[1] = j;
 }
