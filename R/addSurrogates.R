@@ -78,7 +78,7 @@ SurrTree = function(j,wt,Xdata,controls,column.names,tree,maxsurr,ncat) {
     right = as.numeric(strsplit(as.character(node[5]), ",")[[1]])
     directions = rep(-1,ncat[var])
     directions[right] = 1
-    split = c(ncat[var],directions)
+    split = as.numeric(c(ncat[var],directions))
   }
 
 
