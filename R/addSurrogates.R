@@ -27,7 +27,6 @@ addSurrogates = function(RF,trees,s,Xdata,num.threads) {
 
   ntree = length(trees)
   ncat = sapply(sapply(Xdata,levels),length)     # determine number of categories (o for continuous variables)
-  names(ncat) = colnames(Xdata)
 
   #variables to find surrogates (control file similar as in rpart)
   controls = list(maxsurrogate = as.integer(s), sur_agree = 0)
