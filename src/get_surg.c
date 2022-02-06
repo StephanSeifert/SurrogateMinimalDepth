@@ -27,7 +27,7 @@
 #include <unistd.h>	//for using the function sleep
 #endif
 
-SEXP getSurrogates(SEXP ncat2, SEXP wt, SEXP xmat, SEXP opt, SEXP node, SEXP var, SEXP split) {
+SEXP getSurrogates(SEXP ncat2, SEXP wt, SEXP xmat, SEXP opt, SEXP var, SEXP split) {
 
 
 
