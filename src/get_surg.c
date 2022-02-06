@@ -28,7 +28,7 @@
 #endif
 
 SEXP getSurrogates(SEXP wt, SEXP xmat, SEXP opt, SEXP var, SEXP split, SEXP ncat2) {
-
+	printf("Hello from C!\n");
 
 
 	double *dptr;
