@@ -95,7 +95,7 @@ SurrTree = function(j,wt,Xdata,controls,column.names,tree,maxsurr,ncat) {
                               var = as.integer(var),                      # node variables
                               split = as.numeric(split))                    # split info
 
-  
+  print(surrogate.parameters)
 
   if (nrow(surrogate.parameters$isplit) > 1) {
     surrogates = surrogate.parameters$isplit[2:nrow(surrogate.parameters$isplit),1]
