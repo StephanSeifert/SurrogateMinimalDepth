@@ -85,7 +85,7 @@ SurrTree = function(j,wt,Xdata,controls,column.names,tree,maxsurr,ncat) {
     split = as.numeric(c(ncat[var],directions))
   }
 
-  print(ncat)
+  print(ncat[1:4])
 
   surrogate.parameters = .Call(C_getSurrogates,
                               wt = as.numeric(wt),
