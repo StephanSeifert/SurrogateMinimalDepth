@@ -29,7 +29,7 @@ void rpmatrix(pNode me, int *numcat, double **dsplit, int **isplit,  int *nsplit
 				
 				if (numcat[j] == 0)
 				{
-					dsplit[0][scnt] = spl->spoint;
+					dsplit[1][scnt] = spl->spoint;
 					isplit[1][scnt] = -1;
 				} else
 				{
