@@ -60,7 +60,7 @@ SEXP getSurrogates(SEXP ncat2, SEXP wt, SEXP xmat, SEXP opt, SEXP var, SEXP spli
 
 	int *prim_var_num;
 	prim_var_num = INTEGER(var);
-	printf("prim_var_num[0]: %d\n", prim_var_num[0]);
+	//printf("prim_var_num[0]: %d\n", prim_var_num[0]);
 
 	double *splitpoint;
 	double *cat_dir_numeric;
@@ -69,7 +69,7 @@ SEXP getSurrogates(SEXP ncat2, SEXP wt, SEXP xmat, SEXP opt, SEXP var, SEXP spli
 	if (ncat[prim_var_num[0] - 1] == 0)
 	{
 		splitpoint = REAL(split);
-		printf("splitpoint[0]: %f\n", splitpoint[0]);
+		//printf("splitpoint[0]: %f\n", splitpoint[0]);
 	} 
 	else
 		{
@@ -77,7 +77,7 @@ SEXP getSurrogates(SEXP ncat2, SEXP wt, SEXP xmat, SEXP opt, SEXP var, SEXP spli
 			for (i = 0; i < cat_dir_numeric[0] + 1; i++)
 			{
 				cat_dir_int[i] = (int) cat_dir_numeric[i];
-				printf("cat_dir_int[%d]: %d\n", i, cat_dir_int[i]);
+				//printf("cat_dir_int[%d]: %d\n", i, cat_dir_int[i]);
 			}
 		}
 
@@ -172,7 +172,7 @@ SEXP getSurrogates(SEXP ncat2, SEXP wt, SEXP xmat, SEXP opt, SEXP var, SEXP spli
 
 	tree->primary->var_num = prim_var_num[0] - 1;
 
-	printf("tree->primary->var_num: %d\n", tree->primary->var_num);
+	//printf("tree->primary->var_num: %d\n", tree->primary->var_num);
 
 	if (rp.numcat[tree->primary->var_num] == 0)
 	{
@@ -183,7 +183,7 @@ SEXP getSurrogates(SEXP ncat2, SEXP wt, SEXP xmat, SEXP opt, SEXP var, SEXP spli
 		for (i = 1; i < cat_dir_int[0]+1; i++)
 		{
 			tree->primary->csplit[i-1] = cat_dir_int[i];
-			printf("tree->primary->csplit[%d-1]: %d\n", i, tree->primary->csplit[i-1]);
+			//printf("tree->primary->csplit[%d-1]: %d\n", i, tree->primary->csplit[i-1]);
 		}
 	}
 
