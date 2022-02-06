@@ -85,6 +85,7 @@ SurrTree = function(j,wt,Xdata,controls,column.names,tree,maxsurr,ncat) {
     split = as.numeric(c(ncat[var],directions))
   }
 
+  print(ncat)
 
   surrogate.parameters = .Call(C_getSurrogates,
                               wt = as.numeric(wt),
@@ -93,7 +94,7 @@ SurrTree = function(j,wt,Xdata,controls,column.names,tree,maxsurr,ncat) {
                               var = as.integer(var),                      # node variables
                               split = as.numeric(split),                    # split info
                               ncat = as.integer(ncat))
-  print(surrogate.parameters)
+  
 
   if (nrow(surrogate.parameters$isplit) > 1) {
     surrogates = surrogate.parameters$isplit[2:nrow(surrogate.parameters$isplit),1]
