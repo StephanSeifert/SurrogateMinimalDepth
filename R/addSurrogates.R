@@ -88,12 +88,13 @@ SurrTree = function(j,wt,Xdata,controls,column.names,tree,maxsurr,ncat) {
   print(ncat[1:4])
 
   surrogate.parameters = .Call(C_getSurrogates,
+                              ncat = as.integer(ncat),
                               wt = as.numeric(wt),
                               X = as.matrix(Xdata),
                               controls = as.integer(unlist(controls)),
                               var = as.integer(var),                      # node variables
-                              split = as.numeric(split),                    # split info
-                              ncat = as.integer(ncat))
+                              split = as.numeric(split))                    # split info
+
   
 
   if (nrow(surrogate.parameters$isplit) > 1) {
