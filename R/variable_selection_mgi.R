@@ -118,7 +118,7 @@ var.select.mgi = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
       data$status = status
       RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
                           num.threads = num.threads, dependent.variable.name = "status", save.memory = save.memory,
-                          importance ="impurity_corrected", case.weights = case.weights)
+                          importance ="impurity_corrected", case.weights = case.weights, respect.unordered.factors = "partition")
       if (corr.rel) {
         rel = var.relations.mfi(x = x, y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
                                  num.threads = num.threads, status = status, case.weights = case.weights, variables = allvariables,
@@ -131,7 +131,7 @@ var.select.mgi = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
     }
     if (type == "classification" | type == "regression") {
       RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
-                          num.threads = num.threads, importance ="impurity_corrected", case.weights = case.weights)
+                          num.threads = num.threads, importance ="impurity_corrected", case.weights = case.weights, respect.unordered.factors = "partition")
 
       if (corr.rel) {
         rel = var.relations.mfi(x = x, y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
@@ -211,12 +211,12 @@ diag(adj.agree) = 1
 
         if (corr.rel) {
           rel_perm = var.relations.mfi(x = x_perm, y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
-                                   num.threads = num.threads, case.weights = case.weights, variables = allvariables,
-                                   candidates = allvariables, p.t = p.t.rel, method = method.rel,select.rel = select.rel)
+                                   num.threads = num.threads, case.weights = case.weights, variables = allvariables_perm,
+                                   candidates = allvariables_perm, p.t = p.t.rel, method = method.rel,select.rel = select.rel)
         } else {
           rel_perm = var.relations(x = x_perm, y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
-                              num.threads = num.threads, case.weights = case.weights, variables = allvariables,
-                              candidates = allvariables, t = t,select.rel = select.rel)
+                              num.threads = num.threads, case.weights = case.weights, variables = allvariables_perm,
+                              candidates = allvariables_perm, t = t,select.rel = select.rel)
         }
         }
 

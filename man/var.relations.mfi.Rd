@@ -19,6 +19,7 @@ var.relations.mfi(
   forest = NULL,
   save.memory = FALSE,
   case.weights = NULL,
+  min.var.p = 200,
   variables,
   candidates,
   p.t = 0.01,
@@ -57,6 +58,8 @@ classification mode is used). For survival forests this is the time variable.}
 
 \item{case.weights}{Weights for sampling of training observations. Observations with larger weights will be selected with higher probability in the bootstrap (or subsampled) samples for the trees.}
 
+\item{min.var.p}{minimum number of permuted variables used to determine p-value for variable selection of important variables. Default is 200.}
+
 \item{variables}{variable names (string) for which related variables should be searched for (has to be contained in allvariables)}
 
 \item{candidates}{vector of variable names (strings) that are candidates to be related to the variables (has to be contained in allvariables)}
@@ -77,6 +80,7 @@ a list containing:
 \item ranger: ranger objects.
 \item method: Method  to  compute  p-values: "janitza" or "permutation".
 \item p.t: p.value threshold for selection of related variables
+
 
 }
 }

@@ -36,7 +36,7 @@ scount=function(i=1,trees){
   tree=trees[[i]]
   nonterminal.nodes=tree[which(sapply(tree,"[[","status")==1)]
   s.a=(mean(sapply((lapply(nonterminal.nodes,"[",-c(1:7))),length)))/2
-  maxlayer=unlist(nonterminal.nodes[length(nonterminal.nodes)])["layer"]
+  maxlayer=as.numeric(unlist(nonterminal.nodes[length(nonterminal.nodes)])["layer"])
   s.l=matrix(NA,maxlayer+1,2)
   colnames(s.l)=c("layer","No. Surrogates")
   s.l[,1]=0:maxlayer
