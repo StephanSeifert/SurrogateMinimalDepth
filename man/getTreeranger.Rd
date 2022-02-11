@@ -18,7 +18,7 @@ a list with trees. Each row of the list elements corresponds to a node of the re
 \item leftdaughter: ID of the left daughter of this node
 \item rightdaughter: ID of the right daughter of this node
 \item splitvariable: ID of the split variable
-\item splitpoint: splitpoint of the split variable
+\item splitpoint: splitpoint of the split variable (for categorical variables this is a comma separated lists of values, representing the factor levels (in the original order) going to the right)
 \item status: "0" for terminal and "1" for non-terminal
 }
 }

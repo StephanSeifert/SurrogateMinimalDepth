@@ -4,7 +4,7 @@
 \alias{surr.tree}
 \title{surr.tree}
 \usage{
-surr.tree(j = 1, variables, ntree, trees, i)
+surr.tree(tree, variables, index.variables, allvariables, index.candidates)
 }
 \description{
 This is an internal function

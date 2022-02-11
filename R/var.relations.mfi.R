@@ -1,6 +1,6 @@
-#' Investigate variable relations of a specific variable with corrected mean adjusted agreement.
+#' Investigate variable relations of a specific variable with mutual forest impact (corrected mean adjusted agreement).
 #'
-#'This function corrects the mean adjusted agreement by a permutation approach. Subsequently p-values are determined andrelated variables are selected.
+#'This function corrects the mean adjusted agreement by a permutation approach and generates the relation parameter mutual forest impact. Subsequently p-values are determined and related variables are selected.
 #'
 #' @param variables variable names (string) for which related variables should be searched for (has to be contained in allvariables)
 #' @param candidates vector of variable names (strings) that are candidates to be related to the variables (has to be contained in allvariables)
@@ -13,7 +13,7 @@
 #' @return a list containing:
 #' \itemize{
 #' \item variables: the variables to which relations are investigated.
-#' \item surr.res: a matrix with corrected mean adjusted agreement values with variables in rows and candidates in columns.
+#' \item surr.res: a matrix with the mutual forest impact values with variables in rows and candidates in columns.
 #' \item p.rel: a list with the obtained p-values for the relation analysis of each variable.
 #' \item var.rel: a list with vectors of related variables for each variable.
 #' \item ranger: ranger objects.
@@ -29,13 +29,13 @@
 #' \donttest{
 #' # calculate variable relations
 #' set.seed(42)
-#' res = var.relations.corr(x = x, y = y, s = 10, ntree = 100, variables = c("X1","X7"), candidates = colnames(x)[1:100], t = 5)
+#' res = var.relations.mfi(x = x, y = y, s = 10, ntree = 100, variables = c("X1","X7"), candidates = colnames(x)[1:100])
 #' res$var.rel[[1]]
 #' }
 #'
 #' @export
 
-var.relations.corr = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
+var.relations.mfi = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
                          num.threads = NULL, status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL,
                          save.memory = FALSE, case.weights = NULL,
                          variables, candidates, p.t = 0.01, select.rel = TRUE, method = "janitza") {

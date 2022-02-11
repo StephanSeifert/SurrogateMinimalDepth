@@ -1,6 +1,6 @@
-#' Variable selection with mutual impurity reduction (MIR)
+#' Variable selection with mutual Gini importance (MGI)
 #'
-#' This function executes MIR applying \link[ranger]{ranger} for random forests generation and actual impurity reduction and a modified version of \link[rpart]{rpart} to find surrogate variables.
+#' This function executes MGI applying \link[ranger]{ranger} for random forests generation and actual impurity reduction and a modified version of \link[rpart]{rpart} to find surrogate variables.
 #'
 #' @param x matrix or data.frame of predictor variables with variables in
 #'   columns and samples in rows (Note: missing values are not allowed)
@@ -23,7 +23,7 @@
 #' @param case.weights Weights for sampling of training observations. Observations with larger weights will be selected with higher probability in the bootstrap (or subsampled) samples for the trees.
 #' @param method.rel Method  to  compute  p-values for selection of related variables with var.relations.corr. Use  "janitza"  for  the  method  by  Janitza  et  al. (2016) or "permutation" to utilize permuted variables.
 #' @param method.sel Method  to  compute  p-values for selection of important variables. Use  "janitza"  for  the  method  by  Janitza  et  al. (2016) (can only be used when corrected variable relations are utilized) or "permutation" to utilize permuted variables.
-#' @param corr.rel set FALSE if non-corrected variable relations should be used for calculation of MIR. In this case the method "janitza" should not be used for selection of important variables
+#' @param corr.rel set FALSE if non-corrected variable relations should be used for calculation of MGI. In this case the method "janitza" should not be used for selection of important variables
 #' @param t variable to calculate threshold for non-corrected relation analysis. Default is 5.
 #'
 #'
@@ -31,7 +31,7 @@
 #' \itemize{
 #' \item info: list with results containing:
 #' \itemize{
-#' \item MIR: the calculated variable importance for each variable based on mutual impurity reduction.
+#' \item MGI: the calculated variable importance for each variable based on mutual impurity reduction.
 #' \item pvalue: the obtained p-values for each variable.
 #' \item selected: variables has been selected (1) or not (0).
 #' \item relations: a list containing the results of variable relation analysis.
@@ -49,7 +49,7 @@
 #' \donttest{
 #' # select variables (usually more trees are needed)
 #' set.seed(42)
-#' res = var.select.mir(x = SMD_example_data[,2:ncol(SMD_example_data)], y = SMD_example_data[,1],s = 10, ntree = 10)
+#' res = var.select.mgi(x = SMD_example_data[,2:ncol(SMD_example_data)], y = SMD_example_data[,1],s = 10, ntree = 10)
 #' res$var
 #' }
 #'@references
@@ -59,7 +59,7 @@
 ##'   }
 #' @export
 
-var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
+var.select.mgi = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
                           num.threads = NULL, status = NULL, save.ranger = FALSE,
                           save.memory = FALSE, min.var.p = 200, p.t.sel = 0.01, p.t.rel = 0.01, select.var = TRUE, select.rel = FALSE,
                           case.weights = NULL, corr.rel = TRUE, t = 5, method.rel = "janitza", method.sel = "janitza") {
@@ -120,7 +120,7 @@ var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
                           num.threads = num.threads, dependent.variable.name = "status", save.memory = save.memory,
                           importance ="impurity_corrected", case.weights = case.weights)
       if (corr.rel) {
-        rel = var.relations.corr(x = x, y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
+        rel = var.relations.mfi(x = x, y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
                                  num.threads = num.threads, status = status, case.weights = case.weights, variables = allvariables,
                                  candidates = allvariables, p.t = p.t.rel, method = method.rel,select.rel = select.rel)
       } else {
@@ -134,7 +134,7 @@ var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
                           num.threads = num.threads, importance ="impurity_corrected", case.weights = case.weights)
 
       if (corr.rel) {
-        rel = var.relations.corr(x = x, y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
+        rel = var.relations.mfi(x = x, y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
                                  num.threads = num.threads, case.weights = case.weights, variables = allvariables,
                                  candidates = allvariables, p.t = p.t.rel, method = method.rel,select.rel = select.rel)
       } else {
@@ -150,17 +150,17 @@ var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
 adj.agree = rel$surr.res
 diag(adj.agree) = 1
 
-  mir = colSums(adj.agree * RF$variable.importance)
+  mgi = colSums(adj.agree * RF$variable.importance)
 
   if (select.var) {
     if (method.sel == "janitza") {
       if (corr.rel) {
       ## Mirrored VIMP (# This part is taken from ranger function)
-      m1 = mir[mir< 0]
-      m2 = mir[mir == 0]
+      m1 = mgi[mgi< 0]
+      m2 = mgi[mgi == 0]
       null.rel = c(m1, -m1, m2)
 
-      pval <- 1 - ranger:::numSmaller(mir, null.rel) / length(null.rel)
+      pval <- 1 - ranger:::numSmaller(mgi, null.rel) / length(null.rel)
       names(pval) = allvariables
       selected = as.numeric(pval <= p.t.sel)
       names(selected) = names(pval)
@@ -197,7 +197,7 @@ diag(adj.agree) = 1
         }
 
         if (corr.rel) {
-          rel_perm = var.relations.corr(x = x_perm, y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
+          rel_perm = var.relations.mfi(x = x_perm, y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
                                    num.threads = num.threads, status = status, case.weights = case.weights, variables = allvariables,
                                    candidates = allvariables, p.t = p.t.rel, method = method.rel, select.rel = select.rel)
         } else {
@@ -210,7 +210,7 @@ diag(adj.agree) = 1
       if (type == "classification" | type == "regression") {
 
         if (corr.rel) {
-          rel_perm = var.relations.corr(x = x_perm, y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
+          rel_perm = var.relations.mfi(x = x_perm, y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
                                    num.threads = num.threads, case.weights = case.weights, variables = allvariables,
                                    candidates = allvariables, p.t = p.t.rel, method = method.rel,select.rel = select.rel)
         } else {
@@ -223,28 +223,28 @@ diag(adj.agree) = 1
       adj.agree_perm = rel_perm$surr.res
       diag(adj.agree_perm) = 0
 
-      null.rel = unlist(lapply(1:f,calculate.mir.perm,
+      null.rel = unlist(lapply(1:f,calculate.mgi.perm,
                                adj.agree_perm = adj.agree_perm,
                                air = RF$variable.importance,
                                allvariables = allvariables))
 
 
 
-      pval <- 1 - ranger:::numSmaller(mir, null.rel) / length(null.rel)
+      pval <- 1 - ranger:::numSmaller(mgi, null.rel) / length(null.rel)
       names(pval) = allvariables
       selected = as.numeric(pval <= p.t.sel)
       names(selected) = names(pval)
 
       }
 
-  info = list(MIR = mir,
+  info = list(MGI = mgi,
               pvalue = pval,
               selected = selected,
               relations = rel,
               AIR = RF$variable.importance,
               parameters = list(s = s, type = type, mtry = mtry, p.t.sel = p.t.sel, p.t.rel = p.t.rel, method.sel = method.sel))
   } else {
-    info = list(MIR = mir,
+    info = list(MGI = mgi,
                 relations = rel,
                 AIR = RF$variable.importance,
                 parameters = list(s = s, type = type, mtry = mtry))
@@ -266,9 +266,9 @@ diag(adj.agree) = 1
 #' This is an internal function
 #'
 #' @keywords internal
-calculate.mir.perm = function(r=1, adj.agree_perm, air, allvariables) {
-mir.perm = colSums(adj.agree_perm[((r-1) * length(allvariables) + 1):(r * length(allvariables)),((r-1) * length(allvariables) + 1):(r * length(allvariables))] * air,na.rm = TRUE)
-return(mir.perm)
+calculate.mgi.perm = function(r=1, adj.agree_perm, air, allvariables) {
+mgi.perm = colSums(adj.agree_perm[((r-1) * length(allvariables) + 1):(r * length(allvariables)),((r-1) * length(allvariables) + 1):(r * length(allvariables))] * air,na.rm = TRUE)
+return(mgi.perm)
 }
 
 

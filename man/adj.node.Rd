@@ -4,7 +4,7 @@
 \alias{adj.node}
 \title{adj.node}
 \usage{
-adj.node(m, surr.nonterminal)
+adj.node(i, allvar.num, relevant.nodes, index.candidates)
 }
 \description{
 This is an internal function
