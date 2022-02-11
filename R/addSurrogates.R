@@ -29,6 +29,10 @@ addSurrogates = function(RF,trees,s,Xdata,num.threads) {
   ncat = sapply(sapply(Xdata,levels),length)     # determine number of categories (o for continuous variables)
   names(ncat) = colnames(Xdata)
 
+  if (is.null(num.threads)) {
+    num.threads = parallel::detectCores()
+  }
+
   if (any(ncat) > 0) {
   Xdata[,which(ncat > 0)] = sapply(Xdata[,which(ncat > 0)],unclass)
   }
@@ -36,7 +40,11 @@ addSurrogates = function(RF,trees,s,Xdata,num.threads) {
   #variables to find surrogates (control file similar as in rpart)
   controls = list(maxsurrogate = as.integer(s), sur_agree = 0)
 
-  trees.surr = lapply(1:ntree, getSurrogate, maxsurr = s, surr.par = list(inbag.counts = RF$inbag.counts,
+  trees.surr = parallel::mclapply(1:ntree,
+                                  getSurrogate,
+                                  mc.cores = num.threads,
+                                  maxsurr = s,
+                                  surr.par = list(inbag.counts = RF$inbag.counts,
                                                                 Xdata = Xdata,
                                                                 controls = controls,
                                                                 trees = trees,
@@ -85,22 +93,22 @@ SurrTree = function(j,wt,Xdata,controls,column.names,tree,maxsurr,ncat) {
     split = as.numeric(c(ncat[var],directions))
   }
 
-  print(ncat[1:4])
 
   surrogate.parameters = .Call(C_getSurrogates,
-                              ncat = as.integer(ncat),
-                              wt = as.numeric(wt),
-                              X = as.matrix(Xdata),
-                              controls = as.integer(unlist(controls)),
-                              var = as.integer(var),                      # node variables
-                              split = as.numeric(split))                    # split info
+                               ncat = as.integer(ncat),
+                               wt = as.numeric(wt),
+                               X = as.matrix(Xdata),
+                               controls = as.integer(unlist(controls)),
+                               var = as.integer(var),                      # node variables
+                               split = as.numeric(split))                    # split info
 
-  print(surrogate.parameters)
 
   if (nrow(surrogate.parameters$isplit) > 1) {
     surrogates = surrogate.parameters$isplit[2:nrow(surrogate.parameters$isplit),1]
     surr.adj = surrogate.parameters$dsplit[2:nrow(surrogate.parameters$dsplit),1]
-    node.new = c(node,surrogates,surr.adj)
+    node.new = data.frame(matrix(nrow = 1, ncol = 7 + length(surrogates) + length(surr.adj)))
+    node.new[,1:7] = node[1:7]
+    node.new[,8:(7 + length(surrogates) + length(surr.adj))] = c(surrogates,surr.adj)
     surrogate.names = NULL
     adj.names = NULL
     surrogate.names = sapply(1:length(surrogates),name.surr,surrogate.names)
