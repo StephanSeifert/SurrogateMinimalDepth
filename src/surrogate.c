@@ -87,8 +87,6 @@ void surrogate(pNode me, int n1, int n2) {
 
 	for (i = n1; i < n2; i++) {
 		j = sorts[var][i];
-		//if (j < 0)
-		//	j = -(j + 1);
 		j = j < 0 ? -(j + 1) : j;
 		switch (tempy[j]) {
 		case LEFT:
@@ -101,7 +99,6 @@ void surrogate(pNode me, int n1, int n2) {
 			break;
 		}
 	}
-	// end parallel section
 
 	if (lcount < rcount)
 		me->lastsurrogate = RIGHT;
@@ -115,8 +112,6 @@ void surrogate(pNode me, int n1, int n2) {
 
 	// Now walk through the variables
 	me->surrogate = (pSplit) NULL;
-	//int splitLR = rp.csplit;
-	int nthreads;
 
 		for (i = 0; i < rp.nvar; i++) {
 			if (var == i)
