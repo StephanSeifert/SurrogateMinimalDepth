@@ -1,10 +1,11 @@
-#' Investigate variable relations of a specific variable with corrected mean adjusted agreement.
+#' Investigate variable relations of a specific variable with mutual forest impact (corrected mean adjusted agreement).
 #'
-#'This function corrects the mean adjusted agreement by a permutation approach. Subsequently p-values are determined andrelated variables are selected.
+#'This function corrects the mean adjusted agreement by a permutation approach and generates the relation parameter mutual forest impact. Subsequently p-values are determined and related variables are selected.
 #'
 #' @param variables variable names (string) for which related variables should be searched for (has to be contained in allvariables)
 #' @param candidates vector of variable names (strings) that are candidates to be related to the variables (has to be contained in allvariables)
 #' @param p.t p.value threshold for selection of related variables. Default is 0.01.
+#' @param min.var.p minimum number of permuted variables used to determine p-value. Default is 200.
 #' @param select.rel set False if only relations should be calculated and no related variables should be selected.
 #' @param method Method  to  compute  p-values.   Use  "janitza"  for  the  method  by  Janitza  et  al. (2016) or "permutation" to utilize importance values of permuted variables.
 #' @param num.threads number of threads used for determination of relations. Default is number of CPUs available.
@@ -13,12 +14,13 @@
 #' @return a list containing:
 #' \itemize{
 #' \item variables: the variables to which relations are investigated.
-#' \item surr.res: a matrix with corrected mean adjusted agreement values with variables in rows and candidates in columns.
+#' \item surr.res: a matrix with the mutual forest impact values with variables in rows and candidates in columns.
 #' \item p.rel: a list with the obtained p-values for the relation analysis of each variable.
 #' \item var.rel: a list with vectors of related variables for each variable.
 #' \item ranger: ranger objects.
 #' \item method: Method  to  compute  p-values: "janitza" or "permutation".
 #' \item p.t: p.value threshold for selection of related variables
+#'
 #'
 #' }
 #' @examples
@@ -29,15 +31,15 @@
 #' \donttest{
 #' # calculate variable relations
 #' set.seed(42)
-#' res = var.relations.corr(x = x, y = y, s = 10, ntree = 100, variables = c("X1","X7"), candidates = colnames(x)[1:100], t = 5)
+#' res = var.relations.mfi(x = x, y = y, s = 10, ntree = 100, variables = c("X1","X7"), candidates = colnames(x)[1:100])
 #' res$var.rel[[1]]
 #' }
 #'
 #' @export
 
-var.relations.corr = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
+var.relations.mfi = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
                          num.threads = NULL, status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL,
-                         save.memory = FALSE, case.weights = NULL,
+                         save.memory = FALSE, case.weights = NULL, min.var.p = 200,
                          variables, candidates, p.t = 0.01, select.rel = TRUE, method = "janitza") {
 
   if (create.forest) {
@@ -91,11 +93,11 @@ var.relations.corr = function(x = NULL, y = NULL, ntree = 500, type = "regressio
     colnames(x_perm) = paste(allvariables,"_perm", sep = "")
 
     if (select.rel & method == "permutation") {
-      f = ceiling(25 / (ncol(x))) # f determines how often the variables are permuted (only more than 1 time when less than 25 variables are present)
+      f = ceiling(min.var.p / (ncol(x))) # f determines how often the variables are permuted (only more than 1 time when less than min.var.p variables are present)
       if ( ncol(x) < min.var.p) {
         message("More permuted variables than original variables are needed so they are permuted multiple times.")
         x_perm2 = matrix(rep(sapply(1:ncol(x),permute.variable,x=x), (f-1)),nrow = nrow(x), ncol= ncol(x) * (f-1))
-        colnames(x_perm2) = rep(paste(variables,"_perm", sep = ""),(f-1))
+        colnames(x_perm2) = rep(paste(allvariables,"_perm", sep = ""),(f-1))
         x_perm = cbind(x_perm,x_perm2)
       }
     }
@@ -110,18 +112,18 @@ var.relations.corr = function(x = NULL, y = NULL, ntree = 500, type = "regressio
       data$status = status
       RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry, min.node.size = min.node.size,
                           keep.inbag = TRUE, num.threads = num.threads, dependent.variable.name = "status", save.memory = save.memory,
-                          case.weights = case.weights)
+                          case.weights = case.weights, respect.unordered.factors = "partition")
 
       RF_perm = ranger::ranger(data = data_perm,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
                           keep.inbag = TRUE, num.threads = num.threads, dependent.variable.name = "status", save.memory = save.memory,
-                          case.weights = case.weights)
+                          case.weights = case.weights, respect.unordered.factors = "partition")
     }
     if (type == "classification" | type == "regression") {
       RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
-                          keep.inbag = TRUE, num.threads = num.threads, case.weights = case.weights)
+                          keep.inbag = TRUE, num.threads = num.threads, case.weights = case.weights, respect.unordered.factors = "partition")
 
       RF_perm = ranger::ranger(data = data_perm,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
-                          keep.inbag = TRUE, num.threads = num.threads, case.weights = case.weights)
+                          keep.inbag = TRUE, num.threads = num.threads, case.weights = case.weights, respect.unordered.factors = "partition")
 
     }
     trees = getTreeranger(RF = RF,ntree = ntree)

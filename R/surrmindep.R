@@ -39,12 +39,12 @@ depth.tree = rep(NA,length(variables))
     node = unlist(tree[o])
     if (node["status"] == 1) {
     if (is.na(depth.tree[node["splitvariable"]])) {
-      depth.tree[node["splitvariable"]] = node["layer"]
+      depth.tree[as.numeric(node["splitvariable"])] = as.numeric(node["layer"])
     }
       if (length(node) > 7) {
       for (r in 8:(7 + (length(node) - 7)/2)) {
-        if (is.na(depth.tree[node[r]])) {
-      depth.tree[node[r]] = node["layer"]
+        if (is.na(depth.tree[as.numeric(node[r])])) {
+      depth.tree[as.numeric(node[r])] = as.numeric(node["layer"])
       }
       }
       }
@@ -52,10 +52,10 @@ depth.tree = rep(NA,length(variables))
   o = o + 1
   }
   #variables with no split in the tree get maxdepth as minimal depth
-  depth.tree[which(is.na(depth.tree))] = unlist(tree[length(tree)])["layer"]
+  depth.tree[which(is.na(depth.tree))] = as.numeric(unlist(tree[length(tree)])["layer"])
   #save min and max depth information for every tree
   mindepth[i,] = depth.tree
-  maxdepth[i] = unlist(tree[length(tree)])["layer"]
+  maxdepth[i] = as.numeric(unlist(tree[length(tree)])["layer"])
   #find the number of nodes in every layer
 
   laystat = cbind(sapply(tree,"[[","layer"),sapply(tree,"[[","status"))

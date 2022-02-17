@@ -15,19 +15,18 @@ var.relations(
   num.threads = NULL,
   status = NULL,
   save.ranger = FALSE,
-  create.forest = FALSE,
+  create.forest = TRUE,
   forest = NULL,
   save.memory = FALSE,
   case.weights = NULL,
   variables,
   candidates,
   t = 5,
-  select.rel = TRUE,
-  num.threads.rel = NULL
+  select.rel = TRUE
 )
 }
 \arguments{
-\item{x}{matrix or data.frame of predictor variables with variables in
+\item{x}{data.frame of predictor variables with variables in
 columns and samples in rows (Note: missing values are not allowed)}
 
 \item{y}{vector with values of phenotype variable (Note: will be converted to factor if
@@ -43,7 +42,7 @@ classification mode is used). For survival forests this is the time variable.}
 
 \item{min.node.size}{minimal node size. Default is 1.}
 
-\item{num.threads}{number of threads used for parallel execution. Default is number of CPUs available.}
+\item{num.threads}{number of threads used for determination of relations. Default is number of CPUs available.}
 
 \item{status}{status variable, only applicable to survival data. Use 1 for event and 0 for censoring.}
 
@@ -64,8 +63,6 @@ classification mode is used). For survival forests this is the time variable.}
 \item{t}{variable to calculate threshold. Default is 5.}
 
 \item{select.rel}{set False if only relations should be calculated and no related variables should be selected.}
-
-\item{num.threads.rel}{number of threads used for determination of relations. Default is number of CPUs available. (this process can be memory-intensive and it can be preferable to reduce this)}
 }
 \value{
 a list containing:
