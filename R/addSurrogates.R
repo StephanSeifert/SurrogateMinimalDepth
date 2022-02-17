@@ -71,7 +71,6 @@ getSurrogate = function(surr.par, k = 1, maxsurr) {
                     column.names, tree,maxsurr,
                     ncat = surr.par$ncat)
 }
-print("ok")
 #' SurrTree
 #'
 #' This is an internal function
@@ -95,14 +94,13 @@ SurrTree = function(j,wt,Xdata,controls,column.names,tree,maxsurr,ncat) {
 
 
   surrogate.parameters = .Call(C_getSurrogates,
+
                                ncat = as.integer(ncat),
                                wt = as.numeric(wt),
                                X = as.matrix(Xdata),
                                controls = as.integer(unlist(controls)),
                                var = as.integer(var),                      # node variables
                                split = as.numeric(split))                    # split info
-  print(surrogate.parameters)
-  print("ok")
 
   if (nrow(surrogate.parameters$isplit) > 1) {
     surrogates = surrogate.parameters$isplit[2:nrow(surrogate.parameters$isplit),1]
