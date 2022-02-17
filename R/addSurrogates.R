@@ -71,7 +71,7 @@ getSurrogate = function(surr.par, k = 1, maxsurr) {
                     column.names, tree,maxsurr,
                     ncat = surr.par$ncat)
 }
-
+print("ok")
 #' SurrTree
 #'
 #' This is an internal function
