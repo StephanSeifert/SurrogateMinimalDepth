@@ -41,7 +41,9 @@ var.relations.mfi = function(x = NULL, y = NULL, ntree = 500, type = "regression
                          num.threads = NULL, status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL,
                          save.memory = FALSE, case.weights = NULL, min.var.p = 200,
                          variables, candidates, p.t = 0.01, select.rel = TRUE, method = "janitza") {
-
+  if(!is.data.frame(x)){
+    stop("x has to be a data frame")
+  }
   if (create.forest) {
     ## check data
     if (length(y) != nrow(x)) {

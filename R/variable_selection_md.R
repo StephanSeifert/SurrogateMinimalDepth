@@ -2,7 +2,7 @@
 #'
 #' This function executes MD applying \link[ranger]{ranger} for random forests generation and is a reimplementation of \link[randomForestSRC]{var.select} from randomForestSRC package.
 #'
-#' @param x matrix or data.frame of predictor variables with variables in
+#' @param x data.frame of predictor variables with variables in
 #'   columns and samples in rows. (Note: missing values are not allowed)
 #' @param y vector with values of phenotype variable (Note: will be converted to factor if
 #'   classification mode is used). For survival forests this is the time variable.

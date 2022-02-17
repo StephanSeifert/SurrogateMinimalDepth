@@ -2,7 +2,7 @@
 #'
 #' This function executes MIR applying \link[ranger]{ranger} for random forests generation and actual impurity reduction and a modified version of \link[rpart]{rpart} to find surrogate variables.
 #'
-#' @param x matrix or data.frame of predictor variables with variables in
+#' @param x data.frame of predictor variables with variables in
 #'   columns and samples in rows (Note: missing values are not allowed)
 #' @param y vector with values of phenotype variable (Note: will be converted to factor if
 #'   classification mode is used). For survival forests this is the time variable.
@@ -63,7 +63,9 @@ var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
                           num.threads = NULL, status = NULL, save.ranger = FALSE,
                           save.memory = FALSE, min.var.p = 200, p.t.sel = 0.01, p.t.rel = 0.01, select.var = TRUE, select.rel = FALSE,
                           case.weights = NULL, corr.rel = TRUE, t = 5, method.rel = "janitza", method.sel = "janitza") {
-
+  if(!is.data.frame(x)){
+    stop("x has to be a data frame")
+  }
     ## check data
     if (length(y) != nrow(x)) {
       stop("length of y and number of rows in x are different")
