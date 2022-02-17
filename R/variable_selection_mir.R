@@ -257,8 +257,12 @@ diag(adj.agree) = 1
                    var = names(info$selected[info$selected == 1]),
                    ranger = RF)
   } else {
+    if (select.var) {
     results = list(info = info,
                    var = names(info$selected[info$selected == 1]))
+    }
+  } else {
+    results = list(info = info)
   }
   return(results)
 }

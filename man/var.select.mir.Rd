@@ -29,7 +29,7 @@ var.select.mir(
 )
 }
 \arguments{
-\item{x}{matrix or data.frame of predictor variables with variables in
+\item{x}{data.frame of predictor variables with variables in
 columns and samples in rows (Note: missing values are not allowed)}
 
 \item{y}{vector with values of phenotype variable (Note: will be converted to factor if
