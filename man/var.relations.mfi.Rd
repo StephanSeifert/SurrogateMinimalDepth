@@ -58,7 +58,7 @@ classification mode is used). For survival forests this is the time variable.}
 
 \item{case.weights}{Weights for sampling of training observations. Observations with larger weights will be selected with higher probability in the bootstrap (or subsampled) samples for the trees.}
 
-\item{min.var.p}{minimum number of permuted variables used to determine p-value for variable selection of important variables. Default is 200.}
+\item{min.var.p}{minimum number of permuted variables used to determine p-value. Default is 200.}
 
 \item{variables}{variable names (string) for which related variables should be searched for (has to be contained in allvariables)}
 
