@@ -45,10 +45,10 @@ addSurrogates = function(RF,trees,s,Xdata,num.threads) {
                                   mc.cores = num.threads,
                                   maxsurr = s,
                                   surr.par = list(inbag.counts = RF$inbag.counts,
-                                                                Xdata = Xdata,
-                                                                controls = controls,
-                                                                trees = trees,
-                                                                ncat = ncat))
+                                                  Xdata = Xdata,
+                                                  controls = controls,
+                                                  trees = trees,
+                                                  ncat = ncat))
   return(trees.surr)
 }
 
