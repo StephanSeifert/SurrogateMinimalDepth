@@ -4,7 +4,7 @@
 \alias{getSurrogate}
 \title{getSurrogate}
 \usage{
-getSurrogate(surr.par, k = 1, maxsurr)
+getSurrogate(surr.par, k = 1, maxsurr, num.threads)
 }
 \description{
 This is an internal function
