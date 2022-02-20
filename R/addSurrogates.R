@@ -65,7 +65,6 @@ getSurrogate = function(surr.par, k = 1, maxsurr,num.threads) {
  wt = surr.par$inbag.counts[[k]]
  tree.surr = lapply(1:n.nodes,
                                 SurrTree,
-                                mc.cores = num.threads,
                                 wt = wt,
                                 Xdata = surr.par$Xdata,
                                 controls = surr.par$controls,
