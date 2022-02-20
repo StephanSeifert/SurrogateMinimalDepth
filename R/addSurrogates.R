@@ -63,7 +63,7 @@ getSurrogate = function(surr.par, k = 1, maxsurr,num.threads) {
  column.names = colnames(tree)
  n.nodes = nrow(tree)
  wt = surr.par$inbag.counts[[k]]
- tree.surr = parallel::mclapply(1:n.nodes,
+ tree.surr = lapply(1:n.nodes,
                                 SurrTree,
                                 mc.cores = num.threads,
                                 wt = wt,
