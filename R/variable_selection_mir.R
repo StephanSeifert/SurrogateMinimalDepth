@@ -199,11 +199,11 @@ diag(adj.agree) = 1
         }
 
         if (corr.rel) {
-          rel_perm = var.relations.mfi(x = x_perm, y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
+          rel_perm = var.relations.mfi(x = data.frame(x_perm), y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
                                    num.threads = num.threads, status = status, case.weights = case.weights, variables = allvariables,
                                    candidates = allvariables, p.t = p.t.rel, method = method.rel, select.rel = select.rel)
         } else {
-          rel_perm = var.relations(x = x_perm, y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
+          rel_perm = var.relations(x = data.frame(x_perm), y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
                               num.threads = num.threads, status = status, case.weights = case.weights, variables = allvariables,
                               candidates = allvariables, t = t, select.rel = select.rel)
         }
@@ -212,11 +212,11 @@ diag(adj.agree) = 1
       if (type == "classification" | type == "regression") {
 
         if (corr.rel) {
-          rel_perm = var.relations.mfi(x = x_perm, y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
+          rel_perm = var.relations.mfi(x = data.frame(x_perm), y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
                                    num.threads = num.threads, case.weights = case.weights, variables = allvariables_perm,
                                    candidates = allvariables_perm, p.t = p.t.rel, method = method.rel,select.rel = select.rel)
         } else {
-          rel_perm = var.relations(x = x_perm, y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
+          rel_perm = var.relations(x = data.frame(x_perm), y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
                               num.threads = num.threads, case.weights = case.weights, variables = allvariables_perm,
                               candidates = allvariables_perm, t = t,select.rel = select.rel)
         }
@@ -260,9 +260,9 @@ diag(adj.agree) = 1
     if (select.var) {
     results = list(info = info,
                    var = names(info$selected[info$selected == 1]))
-    }
   } else {
     results = list(info = info)
+  }
   }
   return(results)
 }

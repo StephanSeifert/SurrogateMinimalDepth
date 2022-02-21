@@ -64,7 +64,7 @@ meanAdjAgree=function(trees,variables,allvariables,candidates,t,s.a,select.var,n
 #' @keywords internal
 mean.index=function(i, list.res,index.variables){
   list = list.res[which(names(list.res) == index.variables[i])]
-  mean.list = Reduce("+",list)/length(list)
+  mean.list = round(Reduce("+",list)/length(list),2)
   return(mean.list)
 }
 

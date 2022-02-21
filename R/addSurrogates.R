@@ -40,15 +40,15 @@ addSurrogates = function(RF,trees,s,Xdata,num.threads) {
   #variables to find surrogates (control file similar as in rpart)
   controls = list(maxsurrogate = as.integer(s), sur_agree = 0)
 
-  trees.surr = parallel::mclapply(1:ntree,
-                                  getSurrogate,
-                                  mc.cores = num.threads,
-                                  maxsurr = s,
-                                  surr.par = list(inbag.counts = RF$inbag.counts,
-                                                                Xdata = Xdata,
-                                                                controls = controls,
-                                                                trees = trees,
-                                                                ncat = ncat))
+  trees.surr = lapply(1:ntree,
+                      getSurrogate,
+                      maxsurr = s,
+                      num.threads,
+                      surr.par = list(inbag.counts = RF$inbag.counts,
+                                      Xdata = Xdata,
+                                      controls = controls,
+                                      trees = trees,
+                                      ncat = ncat))
   return(trees.surr)
 }
 
@@ -57,19 +57,20 @@ addSurrogates = function(RF,trees,s,Xdata,num.threads) {
 #' This is an internal function
 #'
 #' @keywords internal
-getSurrogate = function(surr.par, k = 1, maxsurr) {
+getSurrogate = function(surr.par, k = 1, maxsurr,num.threads) {
   #weights and trees are extracted
  tree = surr.par$trees[[k]]
  column.names = colnames(tree)
  n.nodes = nrow(tree)
  wt = surr.par$inbag.counts[[k]]
- tree.surr = lapply(1:n.nodes,
-                    SurrTree,
-                    wt = wt,
-                    Xdata = surr.par$Xdata,
-                    controls = surr.par$controls,
-                    column.names, tree,maxsurr,
-                    ncat = surr.par$ncat)
+ tree.surr = parallel::mclapply(1:n.nodes,
+                                SurrTree,
+                                mc.cores = num.threads,
+                                wt = wt,
+                                Xdata = surr.par$Xdata,
+                                controls = surr.par$controls,
+                                column.names, tree,maxsurr,
+                                ncat = surr.par$ncat)
 }
 #' SurrTree
 #'
@@ -94,7 +95,6 @@ SurrTree = function(j,wt,Xdata,controls,column.names,tree,maxsurr,ncat) {
 
 
   surrogate.parameters = .Call(C_getSurrogates,
-
                                ncat = as.integer(ncat),
                                wt = as.numeric(wt),
                                X = as.matrix(Xdata),
@@ -104,7 +104,7 @@ SurrTree = function(j,wt,Xdata,controls,column.names,tree,maxsurr,ncat) {
 
   if (nrow(surrogate.parameters$isplit) > 1) {
     surrogates = surrogate.parameters$isplit[2:nrow(surrogate.parameters$isplit),1]
-    surr.adj = surrogate.parameters$dsplit[2:nrow(surrogate.parameters$dsplit),1]
+    surr.adj = round(surrogate.parameters$dsplit[2:nrow(surrogate.parameters$dsplit),1],2)
     node.new = data.frame(matrix(nrow = 1, ncol = 7 + length(surrogates) + length(surr.adj)))
     node.new[,1:7] = node[1:7]
     node.new[,8:(7 + length(surrogates) + length(surr.adj))] = c(surrogates,surr.adj)
