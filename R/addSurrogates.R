@@ -40,15 +40,15 @@ addSurrogates = function(RF,trees,s,Xdata,num.threads) {
   #variables to find surrogates (control file similar as in rpart)
   controls = list(maxsurrogate = as.integer(s), sur_agree = 0)
 
-  trees.surr = lapply(1:ntree,
-                      getSurrogate,
-                      maxsurr = s,
-                      num.threads,
-                      surr.par = list(inbag.counts = RF$inbag.counts,
-                                      Xdata = Xdata,
-                                      controls = controls,
-                                      trees = trees,
-                                      ncat = ncat))
+  trees.surr = parallel::mclapply(1:ntree,
+                                  getSurrogate,
+                                  mc.cores = num.threads,
+                                  maxsurr = s,
+                                  surr.par = list(inbag.counts = RF$inbag.counts,
+                                                         Xdata = Xdata,
+                                                      controls = controls,
+                                                         trees = trees,
+                                                          ncat = ncat))
   return(trees.surr)
 }
 
@@ -57,20 +57,19 @@ addSurrogates = function(RF,trees,s,Xdata,num.threads) {
 #' This is an internal function
 #'
 #' @keywords internal
-getSurrogate = function(surr.par, k = 1, maxsurr,num.threads) {
+getSurrogate = function(surr.par, k = 1, maxsurr) {
   #weights and trees are extracted
  tree = surr.par$trees[[k]]
  column.names = colnames(tree)
  n.nodes = nrow(tree)
  wt = surr.par$inbag.counts[[k]]
- tree.surr = parallel::mclapply(1:n.nodes,
-                                SurrTree,
-                                mc.cores = num.threads,
-                                wt = wt,
-                                Xdata = surr.par$Xdata,
-                                controls = surr.par$controls,
-                                column.names, tree,maxsurr,
-                                ncat = surr.par$ncat)
+ tree.surr = lapply(1:n.nodes,
+                    SurrTree,
+                    wt = wt,
+                    Xdata = surr.par$Xdata,
+                    controls = surr.par$controls,
+                    column.names, tree,maxsurr,
+                    ncat = surr.par$ncat)
 }
 #' SurrTree
 #'
