@@ -35,8 +35,7 @@ meanAdjAgree=function(trees,variables,allvariables,candidates,t,s.a,select.var,n
                                                     allvariables,
                                                     index.candidates))
 
-  results.allvar = matrix(unlist(parallel::mclapply(1:length(index.variables),
-                                                    mc.cores = num.threads,
+  results.allvar = matrix(unlist(lapply(1:length(index.variables),
                                                     mean.index,
                                                     list.res,
                                                     index.variables)),
