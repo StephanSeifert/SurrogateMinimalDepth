@@ -27,8 +27,9 @@ meanAdjAgree=function(trees,variables,allvariables,candidates,t,s.a,select.var,n
   if (is.null(num.threads)) {
     num.threads = parallel::detectCores()
   }
-  list.res = rlist::list.flatten(lapply(trees,
+  list.res = rlist::list.flatten(parallel::mclapply(trees,
                                                     surr.tree,
+                                                    mc.cores = num.threads,
                                                     variables,
                                                     index.variables,
                                                     allvariables,
