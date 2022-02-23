@@ -25,6 +25,7 @@
 #' @param method.sel Method  to  compute  p-values for selection of important variables. Use  "janitza"  for  the  method  by  Janitza  et  al. (2016) (can only be used when corrected variable relations are utilized) or "permutation" to utilize permuted variables.
 #' @param corr.rel set FALSE if non-corrected variable relations should be used for calculation of MIR. In this case the method "janitza" should not be used for selection of important variables
 #' @param t variable to calculate threshold for non-corrected relation analysis. Default is 5.
+#' @param save.rel set FALSE if relation information should not bet saved (default is TRUE)
 #'
 #'
 #' @return list with the following components:
@@ -62,7 +63,7 @@
 var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
                           num.threads = NULL, status = NULL, save.ranger = FALSE,
                           save.memory = FALSE, min.var.p = 200, p.t.sel = 0.01, p.t.rel = 0.01, select.var = TRUE, select.rel = FALSE,
-                          case.weights = NULL, corr.rel = TRUE, t = 5, method.rel = "janitza", method.sel = "janitza") {
+                          case.weights = NULL, corr.rel = TRUE, t = 5, method.rel = "janitza", method.sel = "janitza", save.rel = TRUE) {
   if(!is.data.frame(x)){
     stop("x has to be a data frame")
   }
@@ -238,19 +239,32 @@ diag(adj.agree) = 1
       names(selected) = names(pval)
 
       }
-
+if(save.rel) {
   info = list(MIR = mir,
               pvalue = pval,
               selected = selected,
               relations = rel,
               AIR = RF$variable.importance,
               parameters = list(s = s, type = type, mtry = mtry, p.t.sel = p.t.sel, p.t.rel = p.t.rel, method.sel = method.sel))
+} else {
+  info = list(MIR = mir,
+              pvalue = pval,
+              selected = selected,
+              AIR = RF$variable.importance,
+              parameters = list(s = s, type = type, mtry = mtry, p.t.sel = p.t.sel, p.t.rel = p.t.rel, method.sel = method.sel))
+}
   } else {
+    if(save.rel) {
     info = list(MIR = mir,
                 relations = rel,
                 AIR = RF$variable.importance,
                 parameters = list(s = s, type = type, mtry = mtry))
-}
+    } else {
+      info = list(MIR = mir,
+                  AIR = RF$variable.importance,
+                  parameters = list(s = s, type = type, mtry = mtry))
+    }
+  }
 
   if (save.ranger) {
     results = list(info = info,
