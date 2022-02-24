@@ -8,7 +8,7 @@
 #'   classification mode is used). For survival forests this is the time variable.
 #' @param ntree number of trees. Default is 500.
 #' @param mtry number of variables to possibly split at in each node. Default is no. of variables^(3/4) ("^3/4") as recommended by (Ishwaran 2011). Also possible is "sqrt" and "0.5" to use the square root or half of the no. of variables.
-#' @param type mode of prediction ("regression" or "classification"). Default is regression.
+#' @param type mode of prediction ("regression", "classification" or "survival"). Default is regression.
 #' @param min.node.size minimal node size. Default is 1.
 #' @param num.threads number of threads used for parallel execution. Default is number of CPUs available.
 #' @param s predefined number of surrogate splits (it may happen that the actual number of surrogate splits differs in individual nodes). Default is 1 \% of no. of variables.
@@ -116,7 +116,7 @@ var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
 
     if (type == "survival") {
       if (is.null(status)) {
-        stop("a status variables has to be given for survival analysis")
+        stop("a status variable named status has to be given for survival analysis")
       }
       data$status = status
       RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,

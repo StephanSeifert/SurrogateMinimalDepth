@@ -8,7 +8,7 @@
 #'   classification mode is used). For survival forests this is the time variable.
 #' @param ntree Number of trees. Default is 500.
 #' @param mtry Number of variables to possibly split at in each node. Default is no. of variables^(3/4) as recommended by Ishwaran.
-#' @param type Mode of prediction ("regression" or "classification"). Default is regression.
+#' @param type Mode of prediction ("regression","classification" or "survival"). Default is regression.
 #' @param min.node.size Minimal node size. Default is 1.
 #' @param num.threads number of threads used for parallel execution. Default is number of CPUs available.
 #' @param status status variable, only applicable to survival data. Use 1 for event and 0 for censoring.

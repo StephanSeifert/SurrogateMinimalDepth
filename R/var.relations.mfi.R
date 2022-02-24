@@ -109,7 +109,7 @@ var.relations.mfi = function(x = NULL, y = NULL, ntree = 500, type = "regression
 
     if (type == "survival") {
       if (is.null(status)) {
-        stop("a status variables has to be given for survival analysis")
+        stop("a status variable named status has to be given for survival analysis")
       }
       data$status = status
       RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry, min.node.size = min.node.size,

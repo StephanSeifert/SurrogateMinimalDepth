@@ -36,7 +36,7 @@ classification mode is used). For survival forests this is the time variable.}
 
 \item{ntree}{number of trees. Default is 500.}
 
-\item{type}{mode of prediction ("regression" or "classification"). Default is regression.}
+\item{type}{mode of prediction ("regression", "classification" or "survival"). Default is regression.}
 
 \item{s}{predefined number of surrogate splits (it may happen that the actual number of surrogate splits differs in individual nodes). Default is 1 \% of no. of variables.}
 

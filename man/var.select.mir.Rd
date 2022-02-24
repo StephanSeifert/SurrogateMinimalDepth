@@ -25,7 +25,8 @@ var.select.mir(
   corr.rel = TRUE,
   t = 5,
   method.rel = "janitza",
-  method.sel = "janitza"
+  method.sel = "janitza",
+  save.rel = TRUE
 )
 }
 \arguments{
@@ -37,7 +38,7 @@ classification mode is used). For survival forests this is the time variable.}
 
 \item{ntree}{number of trees. Default is 500.}
 
-\item{type}{mode of prediction ("regression" or "classification"). Default is regression.}
+\item{type}{mode of prediction ("regression", "classification" or "survival"). Default is regression.}
 
 \item{s}{predefined number of surrogate splits (it may happen that the actual number of surrogate splits differs in individual nodes). Default is 1 \% of no. of variables.}
 
@@ -72,6 +73,8 @@ classification mode is used). For survival forests this is the time variable.}
 \item{method.rel}{Method  to  compute  p-values for selection of related variables with var.relations.corr. Use  "janitza"  for  the  method  by  Janitza  et  al. (2016) or "permutation" to utilize permuted variables.}
 
 \item{method.sel}{Method  to  compute  p-values for selection of important variables. Use  "janitza"  for  the  method  by  Janitza  et  al. (2016) (can only be used when corrected variable relations are utilized) or "permutation" to utilize permuted variables.}
+
+\item{save.rel}{set FALSE if relation information should not bet saved (default is TRUE)}
 }
 \value{
 list with the following components:
