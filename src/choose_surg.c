@@ -45,19 +45,22 @@ void choose_surg(int n1, int n2, int *y, double *x, int *order, int ncat, double
 	 *   actually max(llwt + rrwt, lrwt + rlwt) / denominator
 	 */
 	if (ncat == 0) {
+		//printf("Hello from choose_surg() ncat == 0\n");
 
 	double lastx = 0.0;
 	int ll, lr, rr, rl;
 	ll = rl = 0;
 	llwt = 0;
 	rlwt = 0;
-
+	// printf("n2: %d\n", n2); -> 100
+	// printf("n1: %d\n", n1); -> 0
 	for (int i = n2 - 1; i >= n1; i--) {
 		/* start with me sending all to the left */
 		int j = order[i];
 		if (j >= 0) {
 			/* this is why I run the loop backwards */
 			lastx = x[j];
+			//printf("03:		lastx: %f\n", lastx);
 			switch (y[j]) {
 			case LEFT:
 				if (rp.wt[j] > 0)
@@ -75,7 +78,8 @@ void choose_surg(int n1, int n2, int *y, double *x, int *order, int ncat, double
 		}
 	}
 
-
+	// printf("ll: %d\n", ll); -> 13
+	// printf("rl: %d\n", rl); -> 87
 
 	if (llwt > rlwt)
 		agree = llwt;
@@ -104,12 +108,14 @@ void choose_surg(int n1, int n2, int *y, double *x, int *order, int ncat, double
 	 *    (The loop above sets it to the first unique x value).
 	 */
 	/* NB: might never set csplit or split */
+	//*csplit = LEFT;
 	csplit_for_cat[0] = LEFT; 
 	/* a valid splitting value */
 	*split = lastx;
 	for (int i = n1; (ll + rl) >= 2; i++) {
 		int j = order[i];
-
+		//length_of_order_i = length_of_order_i + 1;
+		//printf("order[i]: %d\n", order[i]);
 		if (j >= 0) {
 			/* not a missing value */
 			if ((lr + rr) >= 2 && x[j] != lastx) {
@@ -118,11 +124,13 @@ void choose_surg(int n1, int n2, int *y, double *x, int *order, int ncat, double
 					success = 1;
 					agree = llwt + rrwt;
 					/* < goes to the right */
+					//*csplit = RIGHT;
 					csplit_for_cat[0] = RIGHT;
 					*split = (x[j] + lastx) / 2;
 				} else if ((lrwt + rlwt) > agree) {
 					success = 1;
 					agree = lrwt + rlwt;
+					//*csplit = LEFT;
 					csplit_for_cat[0] = LEFT;
 					*split = (x[j] + lastx) / 2;
 				}
@@ -175,6 +183,7 @@ void choose_surg(int n1, int n2, int *y, double *x, int *order, int ncat, double
 	    int j = order[i];
 	    if (j >= 0) {
 		int k = (int) x[j] - 1;
+
 		
 		
 		switch (y[j]) {
@@ -226,7 +235,9 @@ void choose_surg(int n1, int n2, int *y, double *x, int *order, int ncat, double
 	agree = 0.0;
 	for (int i = 0; i < ncat; i++) {
 	    if (left[i] == 0 && right[i] == 0)
-		csplit_for_cat[i] = 0;
+		{
+			csplit_for_cat[i] = 0;
+		}
 	    else {
 		if (lwt[i] < rwt[i] || (lwt[i] == rwt[i] && defdir == RIGHT)) {
 		    agree += rwt[i];
