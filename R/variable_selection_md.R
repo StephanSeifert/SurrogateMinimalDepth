@@ -2,13 +2,13 @@
 #'
 #' This function executes MD applying \link[ranger]{ranger} for random forests generation and is a reimplementation of \link[randomForestSRC]{var.select} from randomForestSRC package.
 #'
-#' @param x matrix or data.frame of predictor variables with variables in
+#' @param x data.frame of predictor variables with variables in
 #'   columns and samples in rows. (Note: missing values are not allowed)
 #' @param y vector with values of phenotype variable (Note: will be converted to factor if
 #'   classification mode is used). For survival forests this is the time variable.
 #' @param ntree Number of trees. Default is 500.
 #' @param mtry Number of variables to possibly split at in each node. Default is no. of variables^(3/4) as recommended by Ishwaran.
-#' @param type Mode of prediction ("regression" or "classification"). Default is regression.
+#' @param type Mode of prediction ("regression","classification" or "survival"). Default is regression.
 #' @param min.node.size Minimal node size. Default is 1.
 #' @param num.threads number of threads used for parallel execution. Default is number of CPUs available.
 #' @param status status variable, only applicable to survival data. Use 1 for event and 0 for censoring.
