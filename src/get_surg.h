@@ -15,6 +15,8 @@
 #define _(String) (String)
 #endif
 
+// Header for OpenMP
+#include <omp.h>
 
 // Most compilers with openMP support supply a
 //  pre-defined compiler macro _OPENMP. Following
@@ -42,6 +44,9 @@
 //#include "stopwatch.h"
 #endif
 
+#if defined _OPENMP
+#define OPENMP_ON 1
+#endif
 
 
 // Memory defined with R_alloc is removed automatically

@@ -21,7 +21,7 @@ var.select.md(
 )
 }
 \arguments{
-\item{x}{data.frame of predictor variables with variables in
+\item{x}{matrix or data.frame of predictor variables with variables in
 columns and samples in rows. (Note: missing values are not allowed)}
 
 \item{y}{vector with values of phenotype variable (Note: will be converted to factor if
@@ -29,7 +29,7 @@ classification mode is used). For survival forests this is the time variable.}
 
 \item{ntree}{Number of trees. Default is 500.}
 
-\item{type}{Mode of prediction ("regression","classification" or "survival"). Default is regression.}
+\item{type}{Mode of prediction ("regression" or "classification"). Default is regression.}
 
 \item{mtry}{Number of variables to possibly split at in each node. Default is no. of variables^(3/4) as recommended by Ishwaran.}
 
