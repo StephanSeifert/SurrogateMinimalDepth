@@ -1,3 +1,8 @@
+Version 0.3.0 - included possibility to analyze categorical variables 
+              - round adjusted agreement and mean adjusted agreement to 2 digits
+              - speed up meanAdjAgree function
+
+
 Version 0.2.1 - included possibility to analyze categorical variables 
 
 Version 0.2.0 - added function var.sel.mir to select important variables based on mutual impurity reduction and to calculate unbiased relations 

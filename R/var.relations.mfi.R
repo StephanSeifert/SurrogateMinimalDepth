@@ -41,7 +41,9 @@ var.relations.mfi = function(x = NULL, y = NULL, ntree = 500, type = "regression
                          num.threads = NULL, status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL,
                          save.memory = FALSE, case.weights = NULL, min.var.p = 200,
                          variables, candidates, p.t = 0.01, select.rel = TRUE, method = "janitza") {
-
+  if(!is.data.frame(x)){
+    stop("x has to be a data frame")
+  }
   if (create.forest) {
     ## check data
     if (length(y) != nrow(x)) {
@@ -107,7 +109,7 @@ var.relations.mfi = function(x = NULL, y = NULL, ntree = 500, type = "regression
 
     if (type == "survival") {
       if (is.null(status)) {
-        stop("a status variables has to be given for survival analysis")
+        stop("a status variable named status has to be given for survival analysis")
       }
       data$status = status
       RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry, min.node.size = min.node.size,

@@ -30,6 +30,7 @@
 SEXP getSurrogates(SEXP ncat2, SEXP wt, SEXP xmat, SEXP opt, SEXP var, SEXP split) {
 	
 
+
 	double *dptr;
 	int *iptr;
 	int i, j, k, n;
@@ -52,18 +53,16 @@ SEXP getSurrogates(SEXP ncat2, SEXP wt, SEXP xmat, SEXP opt, SEXP var, SEXP spli
 	int *iisplit[3];
 
 
-	//cat_direction = INTEGER(cat_direction2);
 
 	ncat = INTEGER(ncat2);
 
-	int test2 = 5;
+
 	int *prim_var_num;
 	prim_var_num = INTEGER(var);
 
 	double *splitpoint;
 	double *cat_dir_numeric;
-
-	int *cat_dir_int = (int *) calloc(ncat[prim_var_num[0] - 1] + 1, sizeof(int));
+	int *cat_dir_int = (int *) calloc(ncat[prim_var_num[0]] + 1, sizeof(int));
 
 	if (ncat[prim_var_num[0] - 1] == 0)
 	{
@@ -132,21 +131,14 @@ SEXP getSurrogates(SEXP ncat2, SEXP wt, SEXP xmat, SEXP opt, SEXP var, SEXP spli
 			}
 			if(ncat[i] == 0)
 			{
-				sort_vec(0, n - 1, xtemp, tempvec, i);
+				sort_vec(0, n - 1, xtemp, tempvec);
 			} else if(ncat[i] > maxcat)
 			{
 				maxcat = ncat[i];
 			}
-			for (k = 0; k < n; k++)
-			{
-				rp.sorts[i][k] = tempvec[k];
 
-				if (i == 8)
-				{
-					// printf("rp.sorts[i][k]: %d, xtemp[k]: %f\n", rp.sorts[i][k], xtemp[k]);
-				}
-			}	
-			
+			for (k = 0; k < n; k++)
+				rp.sorts[i][k] = tempvec[k];
 		}
 		//clear DMA
 		free(tempvec);
@@ -167,7 +159,6 @@ SEXP getSurrogates(SEXP ncat2, SEXP wt, SEXP xmat, SEXP opt, SEXP var, SEXP spli
 	nodesize = sizeof(Node);
 	tree = (pNode) calloc(1, nodesize);
 
-	//dptr = REAL(node);
 	// the split structure is sized for 2 categories.
 	int splitsize = sizeof(Split);
 	tree->primary = (pSplit) calloc(1, splitsize);
@@ -188,19 +179,10 @@ SEXP getSurrogates(SEXP ncat2, SEXP wt, SEXP xmat, SEXP opt, SEXP var, SEXP spli
 			tree->primary->csplit[i-1] = cat_dir_int[i];
 		}
 	}
-
-	// free(cat_dir_int);
+	free(cat_dir_int);
 
 	tree->primary->nextsplit = NULL;
 
-
-/*
-
-	if (rp.numcat[tree->primary->var_num] == 0)
-	{
-		tree->primary->spoint = splitpoint[0];
-	}
-*/
 
 	if (0 < rp.maxsur)
 		surrogate(tree, 0, n);

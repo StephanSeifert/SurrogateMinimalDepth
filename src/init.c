@@ -8,7 +8,7 @@ SEXP getSurrogates(SEXP wt, SEXP xmat, SEXP opt, SEXP node);
 
 static const R_CallMethodDef CallEntries[] = {
 	// registering native routines http://www.hep.by/gnu/r-patched/r-exts/R-exts_95.html
-	{ "getSurrogates", (DL_FUNC) & getSurrogates, 4 }, { NULL, NULL, 0 }
+	{ "getSurrogates", (DL_FUNC) & getSurrogates, 6 }, { NULL, NULL, 0 }
 };
 
 #include <Rversion.h>

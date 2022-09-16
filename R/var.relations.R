@@ -38,7 +38,9 @@ var.relations = function(x = NULL, y = NULL, ntree = 500, type = "regression", s
                          num.threads = NULL, status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL,
                          save.memory = FALSE, case.weights = NULL,
                          variables, candidates, t = 5, select.rel = TRUE) {
-
+  if(!is.data.frame(x)){
+    stop("x has to be a data frame")
+  }
   if (create.forest) {
     ## check data
     if (length(y) != nrow(x)) {
@@ -89,7 +91,7 @@ var.relations = function(x = NULL, y = NULL, ntree = 500, type = "regression", s
 
     if (type == "survival") {
       if (is.null(status)) {
-        stop("a status variables has to be given for survival analysis")
+        stop("a status variable named status has to be given for survival analysis")
       }
       data$status = status
       RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,

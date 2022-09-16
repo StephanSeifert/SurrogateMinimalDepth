@@ -11,10 +11,11 @@
 #include "get_surg.h"
 #include "rpartproto.h"
 
-void sort_vec(int start, int stop, double *x, int *cvec, int var) {
+void sort_vec(int start, int stop, double *x, int *cvec) {
 	int i, j, k;
 	double temp, median;
 	int tempd;
+
 	while (start < stop) {
 		/*
 		 * first-- if the list is short, do an ordinary insertion sort
@@ -93,7 +94,6 @@ void sort_vec(int start, int stop, double *x, int *cvec, int var) {
 					tempd = cvec[i];
 					cvec[i] = cvec[j];
 					cvec[j] = tempd;
-
 				}
 				i++;
 				j--;
@@ -119,12 +119,12 @@ void sort_vec(int start, int stop, double *x, int *cvec, int var) {
 		if ((i - start) < (stop - j)) {
 			/* top list is shorter */
 			if ((i - start) > 0)
-				sort_vec(start, i, x, cvec, var);
+				sort_vec(start, i, x, cvec);
 			start = j;
 		} else {
 			/* bottom list is shorter */
 			if ((stop - j) > 0)
-				sort_vec(j, stop, x, cvec, var);
+				sort_vec(j, stop, x, cvec);
 			stop = i;
 		}
 	}

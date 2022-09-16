@@ -14,7 +14,7 @@ void free_tree(pNode node, int freenode);
 
 pSplit insert_split(pSplit *listhead, int ncat, double improve, int max);
 
-void sort_vec(int start, int stop, double *x, int *cvec, int var);
+void sort_vec(int start, int stop, double *x, int *cvec);
 
 void rpcountup(pNode me, int *nsplit);
 

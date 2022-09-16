@@ -54,11 +54,8 @@ void surrogate(pNode me, int n1, int n2) {
 		split = (me->primary)->spoint;
 		extra = (me->primary)->csplit[0];
 		for (i = n1; i < n2; i++)
-		{	
-			// lcj: j is the variable num out of the sorted matrix of variables "sorts", whereby "sorts" is sorted in ascending order
+		{
 			j = sorts[var][i];
-			// printf("j (von primvar == 8): %d\n", j);
-			// -> vgl. j mit logfile branch_2_sorts.txt: variable numbers stimmen überein
 			if (j < 0)
 			{
 				tempy[-(j + 1)] = 0;
@@ -69,8 +66,6 @@ void surrogate(pNode me, int n1, int n2) {
 		}
 	} else
 	{ /* categorial variable */
-	// lcj: index is a list of directions for the cats, whereby the index of "index" represents the categorial and the corresponding value the direction
-	// example: index = [1, -1, -1, 1]: cat 0 goes 1 (right), cat 1 goes -1 (left), cat 2 goes -1 (left), cat 3 goes 1 (right)
 	index = (me->primary)->csplit;
 	
 	for (i = n1; i < n2; i++) {
@@ -89,11 +84,9 @@ void surrogate(pNode me, int n1, int n2) {
 
 	lcount = 0;
 	rcount = 0;
-	// lcj: var: PrimVar (see line 48)
+
 	for (i = n1; i < n2; i++) {
 		j = sorts[var][i];
-		//if (j < 0)
-		//	j = -(j + 1);
 		j = j < 0 ? -(j + 1) : j;
 		switch (tempy[j]) {
 		case LEFT:
@@ -106,7 +99,6 @@ void surrogate(pNode me, int n1, int n2) {
 			break;
 		}
 	}
-	// end parallel section
 
 	if (lcount < rcount)
 		me->lastsurrogate = RIGHT;
@@ -120,15 +112,11 @@ void surrogate(pNode me, int n1, int n2) {
 
 	// Now walk through the variables
 	me->surrogate = (pSplit) NULL;
-	//int splitLR = rp.csplit;
-	int nthreads;
 
 		for (i = 0; i < rp.nvar; i++) {
 			if (var == i)
 				continue;
 			ncat = rp.numcat[i];
-
-			
 
 			choose_surg(n1, n2, tempy, xdata[i], sorts[i], ncat, &improve, &split, rp.csplit_for_cat, lcount, rcount, &adj_agree);
 
