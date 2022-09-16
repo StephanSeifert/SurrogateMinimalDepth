@@ -28,14 +28,15 @@ meanAdjAgree=function(trees,variables,allvariables,candidates,t,s.a,select.var,n
     num.threads = parallel::detectCores()
   }
   list.res = rlist::list.flatten(parallel::mclapply(trees,
-                                                    surr.tree,
                                                     mc.cores = num.threads,
+                                                    surr.tree,
                                                     variables,
                                                     index.variables,
                                                     allvariables,
                                                     index.candidates))
 
-  results.allvar = matrix(unlist(lapply(1:length(index.variables),
+  results.allvar = matrix(unlist(parallel::mclapply(1:length(index.variables),
+                                                    mc.cores = num.threads,
                                                     mean.index,
                                                     list.res,
                                                     index.variables)),
@@ -63,7 +64,7 @@ meanAdjAgree=function(trees,variables,allvariables,candidates,t,s.a,select.var,n
 #' @keywords internal
 mean.index=function(i, list.res,index.variables){
   list = list.res[which(names(list.res) == index.variables[i])]
-  mean.list = round(Reduce("+",list)/length(list),2)
+  mean.list = Reduce("+",list)/length(list)
   return(mean.list)
 }
 

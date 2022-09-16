@@ -188,7 +188,6 @@ SEXP getSurrogates(SEXP ncat2, SEXP wt, SEXP xmat, SEXP opt, SEXP var, SEXP spli
 			tree->primary->csplit[i-1] = cat_dir_int[i];
 		}
 	}
-	free(cat_dir_int);
 
 	// free(cat_dir_int);
 
