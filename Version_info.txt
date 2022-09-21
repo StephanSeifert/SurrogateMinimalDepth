@@ -1,17 +1,17 @@
-Version 0.3.0 - included possibility to analyze categorical variables 
-              - round adjusted agreement and mean adjusted agreement to 2 digits
+Version 0.3.0 - round adjusted agreement and mean adjusted agreement to 2 digits
               - speed up meanAdjAgree function
+              - renamed var.relations.corr to var.relations.mfi (as named in the paper)
+              - bugfix for MFI and MIR
 
 
 Version 0.2.1 - included possibility to analyze categorical variables 
 
-Version 0.2.0 - added function var.sel.mir to select important variables based on mutual impurity reduction and to calculate unbiased relations 
+Version 0.2.0 - added function var.sel.mir to select important variables based on mutual impurity reduction
+              - added function var.relations.corr to calculate unbiased relations
               - added multicore calculation of variable relations 
               - expand function inputs for var.relations 
-              - added function var.relations.corr for generation of corrected relations 
               - included possibility to only calculate relations and not select related variables for var.relations function 
-              - included the possibility to set case weights  (done) 
-
+              - included the possibility to set case weights
 
 Version 0.1.10 - fixed bug not including first and last surrogate
 	       - added random selection of surrogates when adj_agree are the same
