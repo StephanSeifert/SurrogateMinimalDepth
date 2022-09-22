@@ -91,7 +91,7 @@ var.relations.mfi = function(x = NULL, y = NULL, ntree = 500, type = "regression
     }
 
     # create shadow variables to correct the relation
-    x_perm = sapply(1:ncol(x),permute.variable,x=x)
+    x_perm = data.frame(lapply(1:ncol(x),permute.variable,x=x))
     colnames(x_perm) = paste(allvariables,"_perm", sep = "")
 
     if (select.rel & method == "permutation") {
