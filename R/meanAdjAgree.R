@@ -8,6 +8,8 @@
 #' @param candidates vector of variable names (strings) that are candidates to be related to the variables (has to be contained in allvariables)
 #' @param t variable to calculate threshold. Default is 3.
 #' @param s.a average number of surrogate variables (ideally calculated by count.surrogates function).
+#' @param select.var set False if only relations should be calculated and no related variables should be selected.
+#' @param num.threads number of threads used for parallel execution. Default is number of CPUs available.
 #' @return a list containing:
 #' \itemize{
 #' \item variables: the variables to which relations are investigated
@@ -20,49 +22,51 @@
 
 meanAdjAgree=function(trees,variables,allvariables,candidates,t,s.a,select.var,num.threads = NULL){
   ntree=length(trees)
-  results.allvar=matrix(NA,ncol=length(candidates),nrow=length(variables))
-  colnames(results.allvar)=candidates
-  rownames(results.allvar)=variables
   surr.result=rep(NA,length(allvariables))
   index.variables=match(variables,allvariables)
-  for (p in (1:length(index.variables))) {
-    i=index.variables[p]
-    surrMatrix=t(sapply(1:ntree,surr.tree,allvariables,ntree,trees,i))
-    colnames(surrMatrix)=allvariables
-    means.surr=colMeans(surrMatrix,na.rm=TRUE)
-    means.surr[i]=NA
-    means.surr.candidate=means.surr[candidates]
-    results.allvar[p,]=means.surr.candidate
+  if (is.null(num.threads)) {
+    num.threads = parallel::detectCores()
   }
-  # calculate threshold and select variables according to it
-  adj.mean=mean(unlist(lapply((1:ntree),adj.mean.trees,trees)))
-  threshold=((s.a*adj.mean)/(length(allvariables)-1))*t
-  SurrVar=ifelse(results.allvar>threshold, 1, 0)
-  result=list(surr.res=results.allvar,threshold=threshold,surr.var=SurrVar,variables=variables)
+  results.allvar = t(sapply(1:length(index.variables),maa.p,allvariables,ntree,trees,index.variables,candidates,num.threads))
+  colnames(results.allvar)=candidates
+  rownames(results.allvar)=variables
+  if(select.var) {
+    # calculate threshold and select variables according to it
+    adj.mean=mean(unlist(lapply((1:ntree),adj.mean.trees,trees)),na.rm = TRUE)
+    threshold=((s.a*adj.mean)/(length(allvariables)-1))*t
+    SurrVar=ifelse(results.allvar>threshold, 1, 0)
+    result=list(surr.res=results.allvar,threshold=threshold,surr.var=SurrVar,variables=variables)
+  } else {
+    result=list(surr.res=results.allvar,variables=variables)
+  }
   return(result)
 }
 
-#' surr.var
+
+#' maa.p
 #'
 #' This is an internal function
 #'
 #' @keywords internal
-surr.var=function(i=1,variables,ntree,trees){
-
-  surrMatrix=t(sapply(1:ntree,surr.tree,variables,ntree,trees,i))
-  colnames(surrMatrix)=variables
+maa.p=function(p=1,allvariables,ntree,trees,index.variables,candidates,num.threads){
+  i=index.variables[p]
+  surrMatrix=matrix(unlist(parallel::mclapply(trees[1:ntree],mc.cores = num.threads,surr.tree,allvariables,ntree,i)),ncol=length(allvariables),nrow=ntree,byrow = TRUE)
+  colnames(surrMatrix)=allvariables
   means.surr=colMeans(surrMatrix,na.rm=TRUE)
-  return(means.surr)
+  means.surr[i]=NA
+  means.surr.candidate=means.surr[candidates]
+  means.surr.candidate[which(means.surr.candidate == "NaN")] = NA
+  return(means.surr.candidate)
 }
+
 
 #' surr.tree
 #'
 #' This is an internal function
 #'
 #' @keywords internal
-surr.tree=function(j=1,variables,ntree,trees,i){
+surr.tree=function(tree,variables,ntree,i){
   adjtree=rep(0,length(variables))
-  tree=trees[[j]]
   # there are more than one nonterminal nodes with split variable i
   if (length(which(sapply(tree,"[[",4)==i))>1){
     nodes=tree[which(sapply(tree,"[[",4)==i)]
@@ -100,6 +104,21 @@ surr.tree=function(j=1,variables,ntree,trees,i){
   return(adjtree=adjtree)
 }
 
+
+
+#' surr.var
+#'
+#' This is an internal function
+#'
+#' @keywords internal
+surr.var=function(i=1,variables,ntree,trees){
+
+  surrMatrix=t(sapply(1:ntree,surr.tree,variables,ntree,trees,i))
+  colnames(surrMatrix)=variables
+  means.surr=colMeans(surrMatrix,na.rm=TRUE)
+  return(means.surr)
+}
+
 #' adj.mean
 #'
 #' This is an internal function
@@ -120,6 +139,9 @@ adj.mean.trees=function(t,trees){
   nonterminal.nodes=tree[which(sapply(tree,"[[","status")==1)]
   surr.nonterminal=lapply(nonterminal.nodes,"[",-c(1:7))
   adj.tree=mean(unlist(lapply(1:length(surr.nonterminal),adj.node,surr.nonterminal)),na.rm = TRUE)
+  if (adj.tree == "NaN") {
+    adj.tree = NA
+  }
   return(adj.tree)
 }
 
