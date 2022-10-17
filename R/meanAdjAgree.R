@@ -18,7 +18,7 @@
 #' @export
 
 
-meanAdjAgree=function(trees,variables,allvariables,candidates,t,s.a){
+meanAdjAgree=function(trees,variables,allvariables,candidates,t,s.a,select.var,num.threads = NULL){
   ntree=length(trees)
   results.allvar=matrix(NA,ncol=length(candidates),nrow=length(variables))
   colnames(results.allvar)=candidates
