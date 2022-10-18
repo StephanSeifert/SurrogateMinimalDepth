@@ -22,16 +22,28 @@
 
 meanAdjAgree=function(trees,variables,allvariables,candidates,t,s.a,select.var,num.threads = NULL){
   ntree=length(trees)
-  surr.result=rep(NA,length(allvariables))
   index.variables=match(variables,allvariables)
+  index.candidates = match(candidates,allvariables)
   if (is.null(num.threads)) {
     num.threads = parallel::detectCores()
   }
-  options(warn=2)
-  results.allvar = matrix(unlist(parallel::mclapply(1:length(index.variables),mc.cores = num.threads,maa.p,allvariables,ntree,trees,index.variables,candidates)),ncol=length(candidates),nrow=length(variables),byrow = TRUE)
-  options(warn=0)
+  list.res = rlist::list.flatten(parallel::mclapply(trees,
+                                                    surr.tree,
+                                                    mc.cores = num.threads,
+                                                    variables,
+                                                    index.variables,
+                                                    allvariables,
+                                                    index.candidates))
+
+  results.allvar = matrix(unlist(lapply(1:length(index.variables),
+                                                    mean.index,
+                                                    list.res,
+                                                    index.variables)),
+                          ncol=length(candidates),nrow=length(variables),byrow = TRUE)
+
   colnames(results.allvar)=candidates
   rownames(results.allvar)=variables
+
   if(select.var) {
     # calculate threshold and select variables according to it
     adj.mean=mean(unlist(lapply((1:ntree),adj.mean.trees,trees)),na.rm = TRUE)
@@ -44,35 +56,15 @@ meanAdjAgree=function(trees,variables,allvariables,candidates,t,s.a,select.var,n
   return(result)
 }
 
-
-#' maa.p
+#' mean.index
 #'
 #' This is an internal function
 #'
 #' @keywords internal
-maa.p=function(p=1,allvariables,ntree,trees,index.variables,candidates){
-  i=index.variables[p]
-  surrMatrix=t(sapply(1:ntree,surr.tree,allvariables,ntree,trees,i))
-  colnames(surrMatrix)=allvariables
-  means.surr=colMeans(surrMatrix,na.rm=TRUE)
-  means.surr[i]=NA
-  means.surr.candidate=means.surr[candidates]
-  means.surr.candidate[which(means.surr.candidate == "NaN")] = NA
-  return(means.surr.candidate)
-}
-
-
-#' surr.var
-#'
-#' This is an internal function
-#'
-#' @keywords internal
-surr.var=function(i=1,variables,ntree,trees){
-
-  surrMatrix=t(sapply(1:ntree,surr.tree,variables,ntree,trees,i))
-  colnames(surrMatrix)=variables
-  means.surr=colMeans(surrMatrix,na.rm=TRUE)
-  return(means.surr)
+mean.index=function(i, list.res,index.variables){
+  list = list.res[which(names(list.res) == index.variables[i])]
+  mean.list = round(Reduce("+",list)/length(list),2)
+  return(mean.list)
 }
 
 #' surr.tree
@@ -80,45 +72,36 @@ surr.var=function(i=1,variables,ntree,trees){
 #' This is an internal function
 #'
 #' @keywords internal
-surr.tree=function(j=1,variables,ntree,trees,i){
-  adjtree=rep(0,length(variables))
-  tree=trees[[j]]
-  # there are more than one nonterminal nodes with split variable i
-  if (length(which(sapply(tree,"[[",4)==i))>1){
-    nodes=tree[which(sapply(tree,"[[",4)==i)]
-    s=sapply(nodes,length)
-    s=(s-7)/2
-    surr=lapply(nodes,"[",-c(1:7)) # extract surrogates
-    sum=0
-    for (o in 1:length(s)) {
-      if (s[o]==0) next
-      adjtree.k=rep(0,length(variables))
-      surr.var=surr[[o]][(1:s[o])]
-      surr.adj=surr[[o]][(s[o]+1):(2*s[o])]
-      adjtree.k[surr.var]=surr.adj
-      adjtree=adjtree+adjtree.k
-      sum=sum+1
-    }
-    adjtree=adjtree/sum
+surr.tree=function(tree,variables,index.variables,allvariables,index.candidates){
+  allvar.num = length(allvariables)
+  nonterminal.nodes = tree[which(sapply(tree,"[[","status")==1)]
+  relevant.nodes = nonterminal.nodes[sapply(nonterminal.nodes,"[[","splitvariable") %in% index.variables]
+  if (length(relevant.nodes) > 0) {
+    list.nodes = lapply(1:length(relevant.nodes),adj.node,allvar.num,relevant.nodes,index.candidates)
+    splitvar = sapply(relevant.nodes,"[[","splitvariable")
+    names(list.nodes) = splitvar
+    return(list.nodes)
   }
-  #there is one nonterminal node with split variable i
-  if (length(which(sapply(tree,"[[",4)==i))==1){
-    nodes=tree[which(sapply(tree,"[[",4)==i)]
-    surr=sapply(nodes,"[",-c(1:7)) # extract surrogates
-    if ((length(nodes[[1]]))>7){
-      s=(length(surr))/2
-      surr.var=surr[1:s]
-      surr.adj=surr[(s+1):(2*s)]
-      adjtree[surr.var]=surr.adj
-    }
-  }
-  #there is no nonterminal node with split variable i
-  if (length(which(sapply(tree,"[[",4)==i))==0){
-    adjtree=rep(NA,length(variables))
-    surr.mean=NA
-  }
-  return(adjtree=adjtree)
 }
+
+
+#' adj.node
+#'
+#' This is an internal function
+#'
+#' @keywords internal
+adj.node = function(i,allvar.num,relevant.nodes,index.candidates) {
+  node = relevant.nodes[i]
+  adjnode = rep(0,allvar.num)
+  surr=unlist(sapply(node,"[",-c(1:7))) # extract surrogates
+  if ((length(node[[1]]))>7){
+    s=(length(surr))/2
+    adjnode[surr[1:s]]=surr[(s+1):(2*s)]
+  }
+  return(adjnode[index.candidates])
+}
+
+
 
 #' adj.mean
 #'
@@ -139,7 +122,7 @@ adj.mean.trees=function(t,trees){
   tree=trees[[t]]
   nonterminal.nodes=tree[which(sapply(tree,"[[","status")==1)]
   surr.nonterminal=lapply(nonterminal.nodes,"[",-c(1:7))
-  adj.tree=mean(unlist(lapply(1:length(surr.nonterminal),adj.node,surr.nonterminal)),na.rm = TRUE)
+  adj.tree=mean(unlist(lapply(1:length(surr.nonterminal),mean.adj.node,surr.nonterminal)),na.rm = TRUE)
   if (adj.tree == "NaN") {
     adj.tree = NA
   }
@@ -151,7 +134,7 @@ adj.mean.trees=function(t,trees){
 #' This is an internal function
 #'
 #' @keywords internal
-adj.node=function(m,surr.nonterminal){
+mean.adj.node=function(m,surr.nonterminal){
   surr=surr.nonterminal[[m]]
   if (length(surr)!=0){
     num.surr=length(surr)/2
