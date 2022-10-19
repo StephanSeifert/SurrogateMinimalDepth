@@ -36,9 +36,9 @@ meanAdjAgree=function(trees,variables,allvariables,candidates,t,s.a,select.var,n
                                                     index.candidates))
 
   results.allvar = matrix(unlist(lapply(1:length(index.variables),
-                                                    mean.index,
-                                                    list.res,
-                                                    index.variables)),
+                                        mean.index,
+                                        list.res,
+                                        index.variables)),
                           ncol=length(candidates),nrow=length(variables),byrow = TRUE)
 
   colnames(results.allvar)=candidates
@@ -64,7 +64,11 @@ meanAdjAgree=function(trees,variables,allvariables,candidates,t,s.a,select.var,n
 mean.index=function(i, list.res,index.variables){
   list = list.res[which(names(list.res) == index.variables[i])]
   mean.list = round(Reduce("+",list)/length(list),2)
+  if (length(mean.list) > 0) {
   return(mean.list)
+  } else {
+  return(rep(NA,length(variables)))
+  }
 }
 
 #' surr.tree
