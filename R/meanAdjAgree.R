@@ -67,7 +67,7 @@ mean.index=function(i, list.res,index.variables){
   if (length(mean.list) > 0) {
   return(mean.list)
   } else {
-  return(rep(NA,length(variables)))
+  return(rep(NA,length(index.variables)))
   }
 }
 
