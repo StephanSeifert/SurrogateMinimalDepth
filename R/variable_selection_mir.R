@@ -120,7 +120,7 @@ var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
       }
       data$status = status
       RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
-                          num.threads = num.threads, dependent.variable.name = "status", save.memory = save.memory,
+                          num.threads = num.threads, status.variable.name = "status", save.memory = save.memory,
                           importance ="impurity_corrected", case.weights = case.weights, respect.unordered.factors = "partition")
       if (corr.rel) {
         rel = var.relations.mfi(x = x, y = y, ntree = ntree, type = type, s = s, mtry = mtry, min.node.size = min.node.size,
