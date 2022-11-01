@@ -113,11 +113,11 @@ var.relations.mfi = function(x = NULL, y = NULL, ntree = 500, type = "regression
       }
       data$status = status
       RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry, min.node.size = min.node.size,
-                          keep.inbag = TRUE, num.threads = num.threads, dependent.variable.name = "status", save.memory = save.memory,
+                          keep.inbag = TRUE, num.threads = num.threads, status.variable.name = "status", save.memory = save.memory,
                           case.weights = case.weights, respect.unordered.factors = "partition")
 
       RF_perm = ranger::ranger(data = data_perm,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
-                          keep.inbag = TRUE, num.threads = num.threads, dependent.variable.name = "status", save.memory = save.memory,
+                          keep.inbag = TRUE, num.threads = num.threads, status.variable.name = "status", save.memory = save.memory,
                           case.weights = case.weights, respect.unordered.factors = "partition")
     }
     if (type == "classification" | type == "regression") {
@@ -175,22 +175,19 @@ var.relations.mfi = function(x = NULL, y = NULL, ntree = 500, type = "regression
   adj.agree.perm = rel_perm$surr.res
   diag(adj.agree) = diag(adj.agree.perm) = 1
 
-
   if(anyNA(adj.agree)) {
-    no.na = length(which(is.na(adj.agree)))
-    warning(paste0(no.na," relations were not calculated for the original variables because not all variables are used in a primary split.
+    no.na = length(which(rowSums(is.na(adj.agree)) != 0 ))
+    warning(paste0("Relations for ", no.na, " original variables were not calculated because they were never used as a primary split.
             Affected relations are set to 0. "))
     adj.agree[which(is.na(adj.agree))] = 0
   }
 
   if(anyNA(adj.agree.perm)) {
-    no.na = length(which(is.na(adj.agree.perm)))
-    warning(paste0(no.na," relations were not calculated for the permuted variables because not all variables are used in a primary split.
+    no.na = length(which(rowSums(is.na(adj.agree.perm)) != 0 ))
+    warning(paste0("Relations for ", no.na, " permuted variables were not calculated because they were not used as a primary split.
             Affected relations are set to 0. "))
     adj.agree.perm[which(is.na(adj.agree.perm))] = 0
   }
-
-
   adj.agree.corr = adj.agree - adj.agree.perm[1:nvar,1:nvar]
   diag(adj.agree.corr) =  diag(adj.agree) = diag(adj.agree.perm) =  NA
 

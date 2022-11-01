@@ -40,7 +40,6 @@ meanAdjAgree=function(trees,variables,allvariables,candidates,t,s.a,select.var,n
                                         list.res,
                                         index.variables)),
                           ncol=length(candidates),nrow=length(variables),byrow = TRUE)
-
   colnames(results.allvar)=candidates
   rownames(results.allvar)=variables
 
@@ -65,6 +64,7 @@ mean.index=function(i, list.res,index.variables){
   list = list.res[which(names(list.res) == index.variables[i])]
   mean.list = round(Reduce("+",list)/length(list),2)
   if (length(mean.list) > 0) {
+  mean.list[index.variables[i]] = NA
   return(mean.list)
   } else {
   return(rep(NA,length(index.variables)))

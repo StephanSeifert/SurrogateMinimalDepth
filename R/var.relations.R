@@ -95,7 +95,7 @@ var.relations = function(x = NULL, y = NULL, ntree = 500, type = "regression", s
       }
       data$status = status
       RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
-                          keep.inbag = TRUE, num.threads = num.threads, dependent.variable.name = "status", save.memory = save.memory,
+                          keep.inbag = TRUE, num.threads = num.threads, status.variable.name = "status", save.memory = save.memory,
                           case.weights = case.weights)
     }
     if (type == "classification" | type == "regression") {
