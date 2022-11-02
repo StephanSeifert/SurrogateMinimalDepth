@@ -115,7 +115,7 @@ var.relations.mfi = function(x = NULL, y = NULL, ntree = 500, type = "regression
       RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry, min.node.size = min.node.size,
                           keep.inbag = TRUE, num.threads = num.threads, status.variable.name = "status", save.memory = save.memory,
                           case.weights = case.weights, respect.unordered.factors = "partition")
-
+      data_perm$status = status
       RF_perm = ranger::ranger(data = data_perm,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
                           keep.inbag = TRUE, num.threads = num.threads, status.variable.name = "status", save.memory = save.memory,
                           case.weights = case.weights, respect.unordered.factors = "partition")
