@@ -1,5 +1,5 @@
-# SurrogateMinimalDepth
-In this R package functions are provided to select important variables with surrogate minimal depth (SMD) and minimal depth (MD) and to investigate variable relations with the mean adjusted agreement of surrogate variables. 
+# RFSurrogates
+In this R package, several functions are provided for applying approaches based on random forest. Minimal depth (MD), Surrogate minimal depth (SMD) and mutual impurity reduction (MIR), which is a corrected approach of SMD, can be applied to assess the importance of variables and to select important variables. In addition, the parameters mean adjusted agreement and mutual forest impact (MFI), a corrected approach of the previous, can be applied to investigate variable relations based on surrogate variables. 
 
 Please cite the following manuscript if you use the package:
 S. Seifert, S. Gundlach, S. Szymczak, Surrogate minimal depth as an importance measure for variables in random forests, Bioinformatics 2019, 35, 3663-3671.
@@ -8,7 +8,7 @@ S. Seifert, S. Gundlach, S. Szymczak, Surrogate minimal depth as an importance m
 # Install
 ```
 library(devtools)
-install_github("StephanSeifert/SurrogateMinimalDepth")
+install_github("StephanSeifert/RFSurrogates")
 ```
 
 # Example data
@@ -17,7 +17,7 @@ The package contains an example data set which consists of a single replicate of
 # Usage
 First the package and the example data are loaded:
 ```
-library(SurrogateMinimalDepth)
+library(RFSurrogates
 data("SMD_example_data")
 dim(SMD_example_data)
 [1] 100 201
