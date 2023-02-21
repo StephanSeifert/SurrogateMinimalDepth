@@ -54,8 +54,6 @@ classification mode is used). For survival forests this is the time variable.}
 
 \item{save.memory}{Use memory saving (but slower) splitting mode. No effect for survival and GWAS data. Warning: This option slows down the tree growing, use only if you encounter memory problems. (This parameter is transfered to ranger)}
 
-\item{min.var.p}{minimum number of permuted variables used to determine p-value for variable selection of important variables. Default is 200.}
-
 \item{p.t.sel}{p.value threshold for selection of important variables. Default is 0.01.}
 
 \item{p.t.rel}{p.value threshold for selection of related variables. Default is 0.01.}
@@ -75,6 +73,8 @@ classification mode is used). For survival forests this is the time variable.}
 \item{method.sel}{Method  to  compute  p-values for selection of important variables. Use  "janitza"  for  the  method  by  Janitza  et  al. (2016) (can only be used when corrected variable relations are utilized) or "permutation" to utilize permuted variables.}
 
 \item{save.rel}{set FALSE if relation information should not bet saved (default is TRUE)}
+
+\item{num.permutations}{number of permutations to determine p-value for variable selection of important variables. Default is 100. (the relations are determined once based on the permuted X data and the utilized AIR values are permuted permuted again for each permutation )}
 }
 \value{
 list with the following components:

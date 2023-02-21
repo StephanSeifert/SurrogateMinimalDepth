@@ -94,16 +94,6 @@ var.relations.mfi = function(x = NULL, y = NULL, ntree = 500, type = "regression
     x_perm = data.frame(lapply(1:ncol(x),permute.variable,x=x))
     colnames(x_perm) = paste(allvariables,"_perm", sep = "")
 
-    if (select.rel & method == "permutation") {
-      f = ceiling(min.var.p / (ncol(x))) # f determines how often the variables are permuted (only more than 1 time when less than min.var.p variables are present)
-      if ( ncol(x) < min.var.p) {
-        message("More permuted variables than original variables are needed so they are permuted multiple times.")
-        x_perm2 = matrix(rep(sapply(1:ncol(x),permute.variable,x=x), (f-1)),nrow = nrow(x), ncol= ncol(x) * (f-1))
-        colnames(x_perm2) = rep(paste(allvariables,"_perm", sep = ""),(f-1))
-        x_perm = cbind(x_perm,x_perm2)
-      }
-    }
-
     data = data.frame(y, x)
     data_perm = data.frame(y, x_perm)
 

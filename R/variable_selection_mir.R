@@ -14,7 +14,7 @@
 #' @param s predefined number of surrogate splits (it may happen that the actual number of surrogate splits differs in individual nodes). Default is 1 \% of no. of variables.
 #' @param p.t.sel p.value threshold for selection of important variables. Default is 0.01.
 #' @param p.t.rel p.value threshold for selection of related variables. Default is 0.01.
-#' @param min.var.p minimum number of permuted variables used to determine p-value for variable selection of important variables. Default is 200.
+#' @param num.permutations number of permutations to determine p-values. Default is 100. (the relations are determined once based on the permuted X data and the utilized AIR values are permuted again for each permutation )
 #' @param status status variable, only applicable to survival data. Use 1 for event and 0 for censoring.
 #' @param save.ranger set TRUE if ranger object should be saved. Default is that ranger object is not saved (FALSE).
 #' @param save.memory Use memory saving (but slower) splitting mode. No effect for survival and GWAS data. Warning: This option slows down the tree growing, use only if you encounter memory problems. (This parameter is transfered to ranger)
@@ -62,7 +62,7 @@
 
 var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
                           num.threads = NULL, status = NULL, save.ranger = FALSE,
-                          save.memory = FALSE, min.var.p = 200, p.t.sel = 0.01, p.t.rel = 0.01, select.var = TRUE, select.rel = FALSE,
+                          save.memory = FALSE, num.permutations = 100, p.t.sel = 0.01, p.t.rel = 0.01, select.var = TRUE, select.rel = FALSE,
                           case.weights = NULL, corr.rel = TRUE, t = 5, method.rel = "janitza", method.sel = "janitza", save.rel = TRUE) {
   if(!is.data.frame(x)){
     stop("x has to be a data frame")
@@ -180,17 +180,8 @@ diag(adj.agree) = 1
     }
 
     if (method.sel == "permutation") {
-
-      f = ceiling(min.var.p / (ncol(x))) # f determines how often the variables are permuted
       x_perm = sapply(1:ncol(x),permute.variable,x=x)
       colnames(x_perm) = paste(allvariables,"_perm", sep = "")
-      if ( ncol(x) < min.var.p) {
-        message("More permuted variables than original variables are needed so they are permuted multiple times.")
-        x_perm2 = matrix(rep(sapply(1:ncol(x),permute.variable,x=x), (f-1)),nrow = nrow(x), ncol= ncol(x) * (f-1))
-        colnames(x_perm2) = rep(paste(allvariables,"_perm", sep = ""),(f-1))
-        x_perm = cbind(x_perm,x_perm2)
-      }
-
       data_perm = data.frame(y, x_perm)
       allvariables_perm = colnames(x_perm)
 
@@ -226,7 +217,7 @@ diag(adj.agree) = 1
       adj.agree_perm = rel_perm$surr.res
       diag(adj.agree_perm) = 0
 
-      null.rel = unlist(lapply(1:f,calculate.mir.perm,
+      null.rel = unlist(lapply(1:num.permutations,calculate.mir.perm,
                                adj.agree_perm = adj.agree_perm,
                                air = RF$variable.importance,
                                allvariables = allvariables))
@@ -287,7 +278,7 @@ if(save.rel) {
 #'
 #' @keywords internal
 calculate.mir.perm = function(r=1, adj.agree_perm, air, allvariables) {
-mir.perm = colSums(adj.agree_perm[((r-1) * length(allvariables) + 1):(r * length(allvariables)),((r-1) * length(allvariables) + 1):(r * length(allvariables))] * air,na.rm = TRUE)
+mir.perm = colSums(adj.agree_perm * sample(air,length(air)))
 return(mir.perm)
 }
 
