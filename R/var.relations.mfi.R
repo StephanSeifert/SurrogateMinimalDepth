@@ -40,7 +40,7 @@
 var.relations.mfi = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
                          num.threads = NULL, status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL,
                          save.memory = FALSE, case.weights = NULL,
-                         variables, candidates, p.t = 0.01, select.rel = TRUE, method = "permutation") {
+                         variables, candidates, p.t = 0.01, select.rel = TRUE, method = "janitza") {
   if(!is.data.frame(x)){
     stop("x has to be a data frame")
   }

@@ -63,7 +63,7 @@
 var.select.mir = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
                           num.threads = NULL, status = NULL, save.ranger = FALSE,
                           save.memory = FALSE, num.permutations = 100, p.t.sel = 0.01, p.t.rel = 0.01, select.var = TRUE, select.rel = FALSE,
-                          case.weights = NULL, corr.rel = TRUE, t = 5, method.rel = "permutation", method.sel = "permutation", save.rel = TRUE) {
+                          case.weights = NULL, corr.rel = TRUE, t = 5, method.rel = "permutation", method.sel = "janitza", save.rel = TRUE) {
   if(!is.data.frame(x)){
     stop("x has to be a data frame")
   }
