@@ -2,6 +2,8 @@ Version 0.3.0 - round adjusted agreement and mean adjusted agreement to 2 digits
               - speed up meanAdjAgree function
               - renamed var.relations.corr to var.relations.mfi (as named in the paper)
               - bugfix for MFI and MIR
+              - permutation approach to determine p-values was optimized for the selection of important and related variables
+              - default approach for p-value calculation was set to "permutation"
 
 
 Version 0.2.1 - included possibility to analyze categorical variables 

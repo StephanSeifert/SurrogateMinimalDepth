@@ -5,9 +5,8 @@
 #' @param variables variable names (string) for which related variables should be searched for (has to be contained in allvariables)
 #' @param candidates vector of variable names (strings) that are candidates to be related to the variables (has to be contained in allvariables)
 #' @param p.t p.value threshold for selection of related variables. Default is 0.01.
-#' @param min.var.p minimum number of permuted variables used to determine p-value. Default is 200.
 #' @param select.rel set False if only relations should be calculated and no related variables should be selected.
-#' @param method Method  to  compute  p-values.   Use  "janitza"  for  the  method  by  Janitza  et  al. (2016) or "permutation" to utilize importance values of permuted variables.
+#' @param method Method  to  compute  p-values.   Use  "janitza"  for  the  method  by  Janitza  et  al. (2016) or "permutation" to utilize permuted relations.
 #' @param num.threads number of threads used for determination of relations. Default is number of CPUs available.
 #' @inheritParams var.select.smd
 #'
@@ -40,8 +39,8 @@
 
 var.relations.mfi = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
                          num.threads = NULL, status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL,
-                         save.memory = FALSE, case.weights = NULL, min.var.p = 200,
-                         variables, candidates, p.t = 0.01, select.rel = TRUE, method = "janitza") {
+                         save.memory = FALSE, case.weights = NULL,
+                         variables, candidates, p.t = 0.01, select.rel = TRUE, method = "permutation") {
   if(!is.data.frame(x)){
     stop("x has to be a data frame")
   }
@@ -217,8 +216,13 @@ var.relations.mfi = function(x = NULL, y = NULL, ntree = 500, type = "regression
 
     if (method == "permutation") {
 
-    null.rel = as.vector(adj.agree.perm)
-    null.rel = null.rel[!is.na(null.rel)]
+    null.rel.plus = as.vector(adj.agree.perm)
+    null.rel.plus = null.rel.plus[!is.na(null.rel.plus)]
+
+    m1 = null.rel.plus[null.rel.plus > 0]
+    m2 = null.rel.plus[null.rel.plus == 0]
+    null.rel = c(m1, -m1, m2)
+
 
     if (length(null.rel) < 100) {
       warning("Only few null relations used. P-values could be inaccurate.")
