@@ -15,6 +15,7 @@
 #' \itemize{
 #' \item variables: the variables to which relations are investigated.
 #' \item surr.res: a matrix with the mutual forest impact values with variables in rows and candidates in columns.
+#' \item surr.perm: a matrix with the mutual forest impact values of the permuted variables with variables in rows and candidates in columns.
 #' \item p.rel: a list with the obtained p-values for the relation analysis of each variable.
 #' \item var.rel: a list with vectors of related variables for each variable.
 #' \item ranger: ranger objects.
@@ -219,6 +220,10 @@ var.relations.mfi = function(x = NULL, y = NULL, ntree = 500, type = "regression
     null.rel = as.vector(adj.agree.perm)
     null.rel = null.rel[!is.na(null.rel)]
 
+    if (length(null.rel) < 100) {
+      warning("Only few null relations used. P-values could be inaccurate.")
+    }
+
     rel.p = lapply(1:length(variables),p.relation,
                    null.rel = null.rel,
                    adj.agree.corr = adj.agree.corr.var,
@@ -233,16 +238,16 @@ var.relations.mfi = function(x = NULL, y = NULL, ntree = 500, type = "regression
   }
 
   if (save.ranger) {
- return(list(variables = variables, surr.res = adj.agree.corr.var,
+ return(list(variables = variables, surr.res = adj.agree.corr.var, surr.perm = adj.agree.perm,
               p.rel = rel.p, var.rel = sel.rel, ranger = list(RF = RF,RF_perm = RF_perm), method = method, p.t = p.t))
   } else {
-    return(list(variables = variables, surr.res = adj.agree.corr.var, p.rel = rel.p, var.rel = sel.rel, method = method, p.t = p.t))
+    return(list(variables = variables, surr.res = adj.agree.corr.var, surr.perm = adj.agree.perm, p.rel = rel.p, var.rel = sel.rel, method = method, p.t = p.t))
   }
   } else {
     if (save.ranger) {
-    return(list(variables = variables, surr.res = adj.agree.corr.var, ranger = list(RF = RF,RF_perm = RF_perm)))
+    return(list(variables = variables, surr.res = adj.agree.corr.var, surr.perm = adj.agree.perm, ranger = list(RF = RF,RF_perm = RF_perm)))
   } else {
-    return(list(variables = variables, surr.res = adj.agree.corr.var))
+    return(list(variables = variables, surr.res = adj.agree.corr.var, surr.perm = adj.agree.perm))
   }
   }
 }

@@ -180,6 +180,10 @@ diag(adj.agree) = 1
     }
 
     if (method.sel == "permutation") {
+
+      if (corr.rel){
+        adj.agree_perm = rel$surr.perm
+      } else {
       x_perm = sapply(1:ncol(x),permute.variable,x=x)
       colnames(x_perm) = paste(allvariables,"_perm", sep = "")
       data_perm = data.frame(y, x_perm)
@@ -215,6 +219,8 @@ diag(adj.agree) = 1
         }
 
       adj.agree_perm = rel_perm$surr.res
+      }
+
       diag(adj.agree_perm) = 0
 
       null.rel = unlist(lapply(1:num.permutations,calculate.mir.perm,

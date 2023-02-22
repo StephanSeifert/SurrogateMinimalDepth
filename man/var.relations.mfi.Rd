@@ -75,6 +75,7 @@ a list containing:
 \itemize{
 \item variables: the variables to which relations are investigated.
 \item surr.res: a matrix with the mutual forest impact values with variables in rows and candidates in columns.
+\item surr.perm: a matrix with the mutual forest impact values of the permuted variables with variables in rows and candidates in columns.
 \item p.rel: a list with the obtained p-values for the relation analysis of each variable.
 \item var.rel: a list with vectors of related variables for each variable.
 \item ranger: ranger objects.
