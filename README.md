@@ -120,14 +120,36 @@ All of the variables that are correlated to X1 are correctly identified as relat
 
 ## Variable relations based on mutual forest impact (MFI)
 
-
-## Mutual impurity reduction (MIR)
-
-Now we would like to analyze the example data with MIR, which determines the variable importance by the actual impurity reduction combined with the relations determined by MFI. Different to MD and SMD, this approach calculates p-values for the selection of important variables. For this, the null distribution is either obtained by negative importance scores called the Janitza approach or by permutation. Since this example dataset is comparatively small, we use the permutation approach (see the second publication for more details about this parameter and MIR in general)
+MFI is a corrected relation parameter calculated by the mean adjusted agreement of the variables and permuted versions of them. Related variables are selected by p-values obtained from a null distribution either determined by negative relation scores (based on the Janitza approach) or by permuted relations. 
+We use the default parameters for the selection here, which is a p-values threshold of 0.01 and the Janitza approach. 
 
 ```
 set.seed(42)
-res.mir = var.select.mir(x = SMD_example_data[,2:ncol(SMD_example_data)], y = SMD_example_data[,1],s = 10, ntree = 1000, method.sel = "permutation")
+rel.mfi = var.relations.mfi(x = x, y = y, s = 10, ntree = 1000, variables = c("X1","X7"), candidates = colnames(x)[1:100], p.t = 0.01, method = "janitza" )
+rel.mfi$var.rel
+$X1
+ [1] "cp1_1"  "cp1_2"  "cp1_3"  "cp1_4"  "cp1_5"  "cp1_6"  "cp1_7"  "cp1_8"  "cp1_9"  "cp1_10"
+
+$X7
+ [1] "cp7_1"  "cp7_2"  "cp7_3"  "cp7_4"  "cp7_5"  "cp7_6"  "cp7_7"  "cp7_8"  "cp7_9"  "cp7_10"
+```
+
+Also by MFI, all of the variables that are correlated to X1 are correctly identified as related to X1 and all of the variables that are correlated to X7 are correcly identified as related to X7. 
+Also the matrix of determined relation (surr.res), permuted relations (surr.perm) and determined p-values (p.rel) can be extracted as followes: 
+
+```
+MFI = rel.mfi$surr.res
+surr.perm = rel.mfi$surr.perm
+p.rel = rel.mfi$p.rel
+```
+
+## Mutual impurity reduction (MIR)
+
+Now we would like to analyze the example data with MIR, which determines the variable importance by the actual impurity reduction combined with the relations determined by MFI. Different to MD and SMD, this approach calculates p-values for the selection of important variables. For this, the null distribution is obtained in a similar way as for MFI, either by negative importance scores called the Janitza approach or by permutation. Since this example dataset is comparatively small, we use the permutation approach. As a threshold for selection a value of 0.01 is applied (p.t.sel = 0.01).
+
+```
+set.seed(42)
+res.mir = var.select.mir(x = SMD_example_data[,2:ncol(SMD_example_data)], y = SMD_example_data[,1], s = 10, ntree = 1000, method.sel = "permutation", p.t.sel = 0.01)
 res.mir$var
  [1] "X1"     "X2"     "X3"     "X4"     "X5"     "X6"     "cp1_1"  "cp1_2"  "cp1_3"  "cp1_4"  "cp1_5"  "cp1_6" 
 [13] "cp1_7"  "cp1_8"  "cp1_9"  "cp1_10" "cp2_1"  "cp2_3"  "cp2_4"  "cp2_6"  "cp2_7"  "cp2_10" "cp3_1"  "cp3_4" 
