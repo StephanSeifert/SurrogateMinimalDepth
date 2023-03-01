@@ -123,7 +123,7 @@ All of the variables that are correlated to X1 are correctly identified as relat
 
 ## Mutual impurity reduction (MIR)
 
-Now we would like to analyze the example data with MIR which determines the variable importance by the actual impurity reduction combined with the relations determined by MFI. Different to MD and SMD, this approach calculates p-values for the selection of important variables. For this, the null distribution is either obtained by negative importance scores, which is called the Janitza approach or by permutation. Since this example dataset is comparatively small, we use the permutation approach (see the second publication for more details about this parameter and MIR in generall)
+Now we would like to analyze the example data with MIR, which determines the variable importance by the actual impurity reduction combined with the relations determined by MFI. Different to MD and SMD, this approach calculates p-values for the selection of important variables. For this, the null distribution is either obtained by negative importance scores called the Janitza approach or by permutation. Since this example dataset is comparatively small, we use the permutation approach (see the second publication for more details about this parameter and MIR in general)
 
 ```
 set.seed(42)
