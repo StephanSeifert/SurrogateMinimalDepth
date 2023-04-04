@@ -1,4 +1,4 @@
-Package: SurrogateMinimalDepth
+Package: RFSurrogates
 Type: Package
 Title: Surrogate minimal depth variable importance 
 Version: 0.3.0
