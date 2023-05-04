@@ -1,5 +1,6 @@
 Version 0.3.0 - round adjusted agreement and mean adjusted agreement to 2 digits
-              - speed up meanAdjAgree function
+              - speed up meanAdjAgree function 
+              - changed that relations to variables not used as primary plit are set as NA (before it was 0)
               - renamed var.relations.corr to var.relations.mfi (as named in the paper)
               - bugfix for MFI and MIR
               - permutation approach to determine p-values was optimized for the selection of important and related variables
@@ -21,7 +22,7 @@ Version 0.1.10 - fixed bug not including first and last surrogate
 	       - added build.clusters function to obtain variable groups  
 
 Version 0.1.9	- some specifics to set s in var.select.smd were adapted
-		- added save.memory parameter (to build the forest with ranger) to 				var.select.smd and var.select.md  
+		- added save.memory parameter (to build the forest with ranger) to 	var.select.smd and var.select.md  
 
 Version 0.1.8	- MD now executes var.select.smd with s = 0 instead of using a separate function
 		- The function reduce.surrogates is included. 
