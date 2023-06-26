@@ -11,13 +11,13 @@
 #' }
 #' @export
 count.surrogates=function(trees){
-  ntree=length(trees)
-  surrogates.trees=lapply(1:ntree,scount,trees)
+  num.trees=length(trees)
+  surrogates.trees=lapply(1:num.trees,scount,trees)
 
   s.a=mean(sapply(surrogates.trees,"[[","s.a"))
   s.l.list=lapply(surrogates.trees,"[[","s.l")
-  s.l.all <- matrix(NA, nrow = 1000, ncol = ntree)
-  for (u in 1:ntree){
+  s.l.all <- matrix(NA, nrow = 1000, ncol = num.trees)
+  for (u in 1:num.trees){
    s.l.tree=s.l.list[[u]][,2]
    s.l.all[1:length(s.l.tree),u]=s.l.tree
   }

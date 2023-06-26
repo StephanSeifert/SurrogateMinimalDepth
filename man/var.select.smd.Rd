@@ -7,7 +7,7 @@
 var.select.smd(
   x = NULL,
   y = NULL,
-  ntree = 500,
+  num.trees = 500,
   type = "regression",
   s = NULL,
   mtry = NULL,
@@ -28,7 +28,7 @@ columns and samples in rows (Note: missing values are not allowed)}
 \item{y}{vector with values of phenotype variable (Note: will be converted to factor if
 classification mode is used). For survival forests this is the time variable.}
 
-\item{ntree}{number of trees. Default is 500.}
+\item{num.trees}{number of trees. Default is 500.}
 
 \item{type}{mode of prediction ("regression", "classification" or "survival"). Default is regression.}
 
@@ -87,7 +87,7 @@ data("SMD_example_data")
 \donttest{
 # select variables (usually more trees are needed)
 set.seed(42)
-res = var.select.smd(x = SMD_example_data[,2:ncol(SMD_example_data)], y = SMD_example_data[,1],s = 10, ntree = 10)
+res = var.select.smd(x = SMD_example_data[,2:ncol(SMD_example_data)], y = SMD_example_data[,1],s = 10, num.trees = 10)
 res$var
 }
 }

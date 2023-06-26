@@ -25,7 +25,7 @@ data("SMD_example_data")
 ###### use result of SMD variable importance and reduce surrogate variables to 10
 # select variables with smd variable importance (usually more trees are needed)
 set.seed(42)
-res = var.select.smd(x = SMD_example_data[,2:ncol(SMD_example_data)], y = SMD_example_data[,1], s = 100, ntree = 10)
+res = var.select.smd(x = SMD_example_data[,2:ncol(SMD_example_data)], y = SMD_example_data[,1], s = 100, num.trees = 10)
 forest.new = reduce.surrogates(forest = res$forest, s = 10)
 
 # execute SMD on tree with reduced number of surrogates

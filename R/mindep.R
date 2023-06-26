@@ -14,7 +14,7 @@
 
 mindep=function(variables,trees){
 
-  ntree= length(trees)
+  num.trees= length(trees)
 # This function determines the minimal depth of variables from a tree with layers that is created by getTree and addLayer functions.
 # It is based on this paper: Ishwaran et. al. Journal of the American Statistical Accociation 2010 and used the conservative marginal
 # approximation to the minimal depth distribution
@@ -22,15 +22,15 @@ mindep=function(variables,trees){
 var.num=length(variables)
 
 #prepare matrix for mindepth
-mindepth=matrix(NA,nrow=ntree,ncol=var.num)
+mindepth=matrix(NA,nrow=num.trees,ncol=var.num)
 colnames(mindepth)=variables
 
 MAX.DEPTH=10000
 #maximal Depth of trees and the number of nodes in every layer is saved to calculate treshold in a following step
-maxdepth=rep(NA,ntree)
-nodesAtDepthMatrix <- matrix(NA, nrow = MAX.DEPTH, ncol = ntree)
+maxdepth=rep(NA,num.trees)
+nodesAtDepthMatrix <- matrix(NA, nrow = MAX.DEPTH, ncol = num.trees)
 # get mindepth for every variable in every tree
-for (i in 1:ntree){
+for (i in 1:num.trees){
 nodesAtDepth <- rep(NA, MAX.DEPTH)
 tree=trees[[i]]
 tree=tree[order(as.numeric(tree[,"layer"])),]

@@ -17,19 +17,19 @@ surrmindep = function(forest, s.l){
 variables = forest[["allvariables"]]
 trees = forest[["trees"]]
 
-ntree = length(trees)
+num.trees = length(trees)
 var.num = length(variables)
 
 #prepare matrix for mindepth
-mindepth = matrix(NA, nrow = ntree, ncol = var.num)
+mindepth = matrix(NA, nrow = num.trees, ncol = var.num)
 colnames(mindepth) = variables
 
 MAX.DEPTH = 10000
 #maximal Depth of trees and the number of nodes in every layer is saved to calculate treshold in a following step
-maxdepth = rep(NA,ntree)
-nodesAtDepthMatrix <- matrix(NA, nrow = MAX.DEPTH, ncol = ntree)
+maxdepth = rep(NA,num.trees)
+nodesAtDepthMatrix <- matrix(NA, nrow = MAX.DEPTH, ncol = num.trees)
 # get mindepth for every variable in every tree
-for (i in 1:ntree) {
+for (i in 1:num.trees) {
 nodesAtDepth <- rep(NA, MAX.DEPTH)
 tree = trees[[i]]
 # get layer information of the variables and save it in minimal depth file

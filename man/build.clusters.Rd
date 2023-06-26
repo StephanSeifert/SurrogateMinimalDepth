@@ -30,7 +30,7 @@ data("SMD_example_data")
  nvar = length(allvariables)   # count number of variables
  set.seed(42)
  RF = ranger::ranger(data = SMD_example_data, dependent.variable.name = "y", num.trees = 10, keep.inbag = TRUE,mtry = floor(nvar^(3/4)), min.node.size = 1)
- trees = getTreeranger(RF = RF, ntree = 10)
+ trees = getTreeranger(RF = RF, num.trees = 10)
  trees.lay = addLayer(trees)
  trees.surr = addSurrogates(RF = RF, trees = trees.lay, s = 10, Xdata = x, num.threads = NULL)
 

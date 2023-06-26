@@ -3,7 +3,7 @@
 #'This functions creates a list of trees for ranger objects similar as getTree function does for random Forest objects.
 #'
 #' @param RF random forest object created by ranger (with keep.inbag=TRUE)
-#' @param ntree number of trees
+#' @param num.trees number of trees
 #' @return a list with trees. Each row of the list elements corresponds to a node of the respective tree and the columns correspond to:
 #' \itemize{
 #' \item nodeID: ID of the respective node (important for left and right daughters in the next columns)
@@ -17,8 +17,8 @@
 
 
 
-getTreeranger=function(RF,ntree) {
-  trees=lapply(1:ntree,getsingletree,RF=RF)
+getTreeranger=function(RF,num.trees) {
+  trees=lapply(1:num.trees,getsingletree,RF=RF)
 
   return(trees)
 }

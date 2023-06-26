@@ -4,12 +4,12 @@
 \alias{getTreeranger}
 \title{Get a list of structured trees for ranger}
 \usage{
-getTreeranger(RF, ntree)
+getTreeranger(RF, num.trees)
 }
 \arguments{
 \item{RF}{random forest object created by ranger (with keep.inbag=TRUE)}
 
-\item{ntree}{number of trees}
+\item{num.trees}{number of trees}
 }
 \value{
 a list with trees. Each row of the list elements corresponds to a node of the respective tree and the columns correspond to:

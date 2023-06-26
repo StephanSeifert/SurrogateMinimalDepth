@@ -7,7 +7,7 @@
 var.relations.mfi(
   x = NULL,
   y = NULL,
-  ntree = 500,
+  num.trees = 500,
   type = "regression",
   s = NULL,
   mtry = NULL,
@@ -34,7 +34,7 @@ columns and samples in rows (Note: missing values are not allowed)}
 \item{y}{vector with values of phenotype variable (Note: will be converted to factor if
 classification mode is used). For survival forests this is the time variable.}
 
-\item{ntree}{number of trees. Default is 500.}
+\item{num.trees}{number of trees. Default is 500.}
 
 \item{type}{mode of prediction ("regression", "classification" or "survival"). Default is regression.}
 
@@ -96,7 +96,7 @@ y = SMD_example_data[,1]
 \donttest{
 # calculate variable relations
 set.seed(42)
-res = var.relations.mfi(x = x, y = y, s = 10, ntree = 100, variables = c("X1","X7"), candidates = colnames(x)[1:100])
+res = var.relations.mfi(x = x, y = y, s = 10, num.trees = 100, variables = c("X1","X7"), candidates = colnames(x)[1:100])
 res$var.rel[[1]]
 }
 

@@ -18,8 +18,8 @@
 addLayer=function(trees){
   #This function adds the respective layer to the different nodes in a tree. The tree has to be prepared by getTree function
   tree.layer=list()
-  ntree= length(trees)
-  for (i in 1:ntree){
+  num.trees= length(trees)
+  for (i in 1:num.trees){
     tree=trees[[i]]
     layer=rep(NA,nrow(tree))
     layer[1]=0

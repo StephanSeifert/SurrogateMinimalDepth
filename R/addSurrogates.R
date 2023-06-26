@@ -25,7 +25,7 @@
 
 addSurrogates = function(RF,trees,s,Xdata,num.threads) {
 
-  ntree = length(trees)
+  num.trees = length(trees)
   ncat = sapply(sapply(Xdata,levels),length)     # determine number of categories (o for continuous variables)
   names(ncat) = colnames(Xdata)
 
@@ -40,7 +40,7 @@ addSurrogates = function(RF,trees,s,Xdata,num.threads) {
   #variables to find surrogates (control file similar as in rpart)
   controls = list(maxsurrogate = as.integer(s), sur_agree = 0)
 
-  trees.surr = parallel::mclapply(1:ntree,
+  trees.surr = parallel::mclapply(1:num.trees,
                                   getSurrogate,
                                   mc.cores = num.threads,
                                   maxsurr = s,

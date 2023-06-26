@@ -28,13 +28,13 @@
 #' \donttest{
 #' # calculate variable relations
 #' set.seed(42)
-#' res = var.relations(x = x, y = y, s = 10, ntree = 100, variables = c("X1","X7"), candidates = colnames(x)[1:100], t = 5)
+#' res = var.relations(x = x, y = y, s = 10, num.trees = 100, variables = c("X1","X7"), candidates = colnames(x)[1:100], t = 5)
 #' res$var
 #' }
 #'
 #' @export
 
-var.relations = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
+var.relations = function(x = NULL, y = NULL, num.trees = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
                          num.threads = NULL, status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL,
                          save.memory = FALSE, case.weights = NULL,
                          variables, candidates, t = 5, select.rel = TRUE) {
@@ -94,17 +94,17 @@ var.relations = function(x = NULL, y = NULL, ntree = 500, type = "regression", s
         stop("a status variable named status has to be given for survival analysis")
       }
       data$status = status
-      RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
+      RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = num.trees,mtry = mtry,min.node.size = min.node.size,
                           keep.inbag = TRUE, num.threads = num.threads, status.variable.name = "status", save.memory = save.memory,
                           case.weights = case.weights)
     }
     if (type == "classification" | type == "regression") {
-      RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
+      RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = num.trees,mtry = mtry,min.node.size = min.node.size,
                           keep.inbag = TRUE, num.threads = num.threads, case.weights = case.weights)
 
     }
 
-    trees = getTreeranger(RF = RF,ntree = ntree)
+    trees = getTreeranger(RF = RF,num.trees = num.trees)
     trees.lay = addLayer(trees)
     rm(trees)
     ###AddSurrogates###

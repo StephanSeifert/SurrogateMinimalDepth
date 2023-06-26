@@ -21,7 +21,7 @@
 
 
 meanAdjAgree=function(trees,variables,allvariables,candidates,t,s.a,select.var,num.threads = NULL){
-  ntree=length(trees)
+  num.trees=length(trees)
   index.variables=match(variables,allvariables)
   index.candidates = match(candidates,allvariables)
   if (is.null(num.threads)) {
@@ -45,7 +45,7 @@ meanAdjAgree=function(trees,variables,allvariables,candidates,t,s.a,select.var,n
 
   if(select.var) {
     # calculate threshold and select variables according to it
-    adj.mean=mean(unlist(lapply((1:ntree),adj.mean.trees,trees)),na.rm = TRUE)
+    adj.mean=mean(unlist(lapply((1:num.trees),adj.mean.trees,trees)),na.rm = TRUE)
     threshold=((s.a*adj.mean)/(length(allvariables)-1))*t
     SurrVar=ifelse(results.allvar>threshold, 1, 0)
     result=list(surr.res=results.allvar,threshold=threshold,surr.var=SurrVar,variables=variables)

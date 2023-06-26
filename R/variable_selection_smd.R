@@ -6,7 +6,7 @@
 #'   columns and samples in rows (Note: missing values are not allowed)
 #' @param y vector with values of phenotype variable (Note: will be converted to factor if
 #'   classification mode is used). For survival forests this is the time variable.
-#' @param ntree number of trees. Default is 500.
+#' @param num.trees number of trees. Default is 500.
 #' @param mtry number of variables to possibly split at in each node. Default is no. of variables^(3/4) ("^3/4") as recommended by (Ishwaran 2011). Also possible is "sqrt" and "0.5" to use the square root or half of the no. of variables.
 #' @param type mode of prediction ("regression", "classification" or "survival"). Default is regression.
 #' @param min.node.size minimal node size. Default is 1.
@@ -49,7 +49,7 @@
 #' \donttest{
 #' # select variables (usually more trees are needed)
 #' set.seed(42)
-#' res = var.select.smd(x = SMD_example_data[,2:ncol(SMD_example_data)], y = SMD_example_data[,1],s = 10, ntree = 10)
+#' res = var.select.smd(x = SMD_example_data[,2:ncol(SMD_example_data)], y = SMD_example_data[,1],s = 10, num.trees = 10)
 #' res$var
 #' }
 #'@references
@@ -60,7 +60,7 @@
 ##'   }
 #' @export
 
-var.select.smd = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
+var.select.smd = function(x = NULL, y = NULL, num.trees = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
                           num.threads = NULL, status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL,
                           save.memory = FALSE, case.weights = NULL) {
   if(!is.data.frame(x)){
@@ -119,15 +119,15 @@ var.select.smd = function(x = NULL, y = NULL, ntree = 500, type = "regression", 
       stop("a status variable named status has to be given for survival analysis")
     }
     data$status = status
-    RF = ranger::ranger(data = data, dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
+    RF = ranger::ranger(data = data, dependent.variable.name = "y",num.trees = num.trees,mtry = mtry,min.node.size = min.node.size,
                         keep.inbag = TRUE, num.threads = num.threads, status.variable.name = "status", save.memory = save.memory,
                         case.weights = case.weights, respect.unordered.factors = "partition")
   }
   if (type == "classification" | type == "regression") {
-  RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
+  RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = num.trees,mtry = mtry,min.node.size = min.node.size,
                       keep.inbag = TRUE, num.threads = num.threads, case.weights = case.weights, respect.unordered.factors = "partition")
   }
-  trees = getTreeranger(RF = RF,ntree = ntree)
+  trees = getTreeranger(RF = RF,num.trees = num.trees)
   trees.lay = addLayer(trees)
   rm(trees)
   ###AddSurrogates###

@@ -6,7 +6,7 @@
 #'   columns and samples in rows. (Note: missing values are not allowed)
 #' @param y vector with values of phenotype variable (Note: will be converted to factor if
 #'   classification mode is used). For survival forests this is the time variable.
-#' @param ntree Number of trees. Default is 500.
+#' @param num.trees Number of trees. Default is 500.
 #' @param mtry Number of variables to possibly split at in each node. Default is no. of variables^(3/4) as recommended by Ishwaran.
 #' @param type Mode of prediction ("regression","classification" or "survival"). Default is regression.
 #' @param min.node.size Minimal node size. Default is 1.
@@ -44,7 +44,7 @@
 #' \donttest{
 #' # select variables (usually more trees are needed)
 #' set.seed(42)
-#' res = var.select.md(x = SMD_example_data[,2:ncol(SMD_example_data)], y = SMD_example_data[,1], ntree = 10)
+#' res = var.select.md(x = SMD_example_data[,2:ncol(SMD_example_data)], y = SMD_example_data[,1], num.trees = 10)
 #' res$var
 #' }
 #'
@@ -56,10 +56,10 @@
 #'
 #' @export
 
-var.select.md = function(x = NULL, y = NULL, ntree = 500, type = "regression", mtry = NULL, min.node.size = 1, num.threads = NULL,
+var.select.md = function(x = NULL, y = NULL, num.trees = 500, type = "regression", mtry = NULL, min.node.size = 1, num.threads = NULL,
                          status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL, save.memory = FALSE, case.weights = NULL) {
 
-  results.smd = var.select.smd(x = x, y = y ,ntree = ntree,type = type, mtry = mtry,min.node.size = min.node.size, num.threads = num.threads
+  results.smd = var.select.smd(x = x, y = y ,num.trees = num.trees,type = type, mtry = mtry,min.node.size = min.node.size, num.threads = num.threads
                                ,status = status, save.ranger = save.ranger, s = 0, create.forest = create.forest, forest = forest,
                                save.memory = save.memory, case.weights = case.weights)
   if (save.ranger) {

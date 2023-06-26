@@ -31,13 +31,13 @@
 #' \donttest{
 #' # calculate variable relations
 #' set.seed(42)
-#' res = var.relations.mfi(x = x, y = y, s = 10, ntree = 100, variables = c("X1","X7"), candidates = colnames(x)[1:100])
+#' res = var.relations.mfi(x = x, y = y, s = 10, num.trees = 100, variables = c("X1","X7"), candidates = colnames(x)[1:100])
 #' res$var.rel[[1]]
 #' }
 #'
 #' @export
 
-var.relations.mfi = function(x = NULL, y = NULL, ntree = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
+var.relations.mfi = function(x = NULL, y = NULL, num.trees = 500, type = "regression", s = NULL, mtry = NULL, min.node.size = 1,
                          num.threads = NULL, status = NULL, save.ranger = FALSE, create.forest = TRUE, forest = NULL,
                          save.memory = FALSE, case.weights = NULL,
                          variables, candidates, p.t = 0.01, select.rel = TRUE, method = "janitza") {
@@ -102,23 +102,23 @@ var.relations.mfi = function(x = NULL, y = NULL, ntree = 500, type = "regression
         stop("a status variable named status has to be given for survival analysis")
       }
       data$status = status
-      RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry, min.node.size = min.node.size,
+      RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = num.trees,mtry = mtry, min.node.size = min.node.size,
                           keep.inbag = TRUE, num.threads = num.threads, status.variable.name = "status", save.memory = save.memory,
                           case.weights = case.weights, respect.unordered.factors = "partition")
       data_perm$status = status
-      RF_perm = ranger::ranger(data = data_perm,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
+      RF_perm = ranger::ranger(data = data_perm,dependent.variable.name = "y",num.trees = num.trees,mtry = mtry,min.node.size = min.node.size,
                           keep.inbag = TRUE, num.threads = num.threads, status.variable.name = "status", save.memory = save.memory,
                           case.weights = case.weights, respect.unordered.factors = "partition")
     }
     if (type == "classification" | type == "regression") {
-      RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
+      RF = ranger::ranger(data = data,dependent.variable.name = "y",num.trees = num.trees,mtry = mtry,min.node.size = min.node.size,
                           keep.inbag = TRUE, num.threads = num.threads, case.weights = case.weights, respect.unordered.factors = "partition")
 
-      RF_perm = ranger::ranger(data = data_perm,dependent.variable.name = "y",num.trees = ntree,mtry = mtry,min.node.size = min.node.size,
+      RF_perm = ranger::ranger(data = data_perm,dependent.variable.name = "y",num.trees = num.trees,mtry = mtry,min.node.size = min.node.size,
                           keep.inbag = TRUE, num.threads = num.threads, case.weights = case.weights, respect.unordered.factors = "partition")
 
     }
-    trees = getTreeranger(RF = RF,ntree = ntree)
+    trees = getTreeranger(RF = RF,num.trees = num.trees)
     trees.lay = addLayer(trees)
     rm(trees)
     ###AddSurrogates###
@@ -127,7 +127,7 @@ var.relations.mfi = function(x = NULL, y = NULL, ntree = 500, type = "regression
     forest = list(trees = trees.surr, allvariables = colnames(data[,-1]))
 
     # do the same for the permutation forrest
-    trees_perm = getTreeranger(RF = RF_perm,ntree = ntree)
+    trees_perm = getTreeranger(RF = RF_perm,num.trees = num.trees)
     trees.lay_perm = addLayer(trees_perm)
     rm(trees_perm)
     ###AddSurrogates###
