@@ -1,3 +1,6 @@
+Version 0.3.1 - changed the name of the parameter ntree to num.trees
+
+
 Version 0.3.0 - round adjusted agreement and mean adjusted agreement to 2 digits
               - speed up meanAdjAgree function 
               - changed that relations to variables not used as primary plit are set as NA (before it was 0)
@@ -5,7 +8,6 @@ Version 0.3.0 - round adjusted agreement and mean adjusted agreement to 2 digits
               - bugfix for MFI and MIR
               - permutation approach to determine p-values was optimized for the selection of important and related variables
               - default approach for p-value calculation was set to "permutation"
-              - changed the name of the parameter ntree to num.trees
 
 Version 0.2.1 - included possibility to analyze categorical variables 
 
